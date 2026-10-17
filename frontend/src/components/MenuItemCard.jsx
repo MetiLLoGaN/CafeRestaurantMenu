@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useCart } from '../context/CartContext';
+import { useTranslation } from 'react-i18next';
 
 const formatPrice = (price) =>
   new Intl.NumberFormat('en-UG', {
@@ -9,6 +10,7 @@ const formatPrice = (price) =>
   }).format(price);
 
 function MenuItemCard({ item, index = 0 }) {
+  const { t } = useTranslation();
   const { addItem, updateQuantity, items: cartItems } = useCart();
   const cartItem = cartItems.find((ci) => ci._id === item._id);
   const quantity = cartItem?.quantity || 0;
@@ -75,7 +77,7 @@ function MenuItemCard({ item, index = 0 }) {
                   backdropFilter: 'blur(4px)',
                 }}
               >
-                Currently Unavailable
+                {t('itemCard.currentlyUnavailable')}
               </span>
             </div>
           )}
@@ -87,12 +89,12 @@ function MenuItemCard({ item, index = 0 }) {
                 className="badge badge-popular animate-pop-in text-xs px-2.5 py-1"
                 style={{ fontFamily: 'var(--font-accent)', fontSize: '13px' }}
               >
-                ★ Popular
+                {t('itemCard.popularBadge')}
               </span>
             )}
             {item.isVegetarian && (
-              <span className="badge text-xs px-2 py-0.5" style={{ background:'#D1FAE5', color:'#065F46' }}>
-                🌱 Veg
+              <span className="badge text-xs px-2 py-0.5" style={{ background:'#D1FAE5', color:'#065F46' }}              >
+                {t('itemCard.veg')}
               </span>
             )}
           </div>
@@ -124,13 +126,13 @@ function MenuItemCard({ item, index = 0 }) {
             {item.preparationTime && (
               <span className="flex items-center gap-1">
                 <span>⏱</span>
-                <span>{item.preparationTime} min</span>
+                <span>{t('itemCard.minutes', { count: item.preparationTime })}</span>
               </span>
             )}
-            {item.isSpicy && <span title="Spicy">🌶</span>}
+            {item.isSpicy && <span title={t('itemCard.spicyBadge')}>🌶</span>}
             {item.allergens?.length > 0 && (
-              <span title={`Contains: ${item.allergens.join(', ')}`} className="cursor-help">
-                ⚠️ allergens
+              <span title={t('itemCard.containsTitle', { list: item.allergens.join(', ') })} className="cursor-help">
+                {t('itemCard.allergens')}
               </span>
             )}
           </div>
@@ -153,7 +155,7 @@ function MenuItemCard({ item, index = 0 }) {
                 >
                   <button
                     onClick={handleDecrement}
-                    aria-label="Remove one"
+                    aria-label={t('itemCard.removeOne')}
                     className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold transition-transform active:scale-90 focus-gold"
                     style={{ background: 'var(--color-primary)' }}
                   >
@@ -167,7 +169,7 @@ function MenuItemCard({ item, index = 0 }) {
                   </span>
                   <button
                     onClick={handleIncrement}
-                    aria-label="Add one more"
+                    aria-label={t('itemCard.addOneMore')}
                     className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold transition-transform active:scale-90 focus-gold"
                     style={{ background: 'var(--color-primary)' }}
                   >
@@ -178,7 +180,7 @@ function MenuItemCard({ item, index = 0 }) {
                 /* Add to cart button */
                 <button
                   onClick={handleAdd}
-                  aria-label={`Add ${item.name} to cart`}
+                  aria-label={t('itemCard.addToCart', { name: item.name })}
                   className="btn-primary focus-gold text-sm px-4 py-2 flex items-center gap-1.5"
                   style={{
                     borderRadius: '9999px',
@@ -191,7 +193,7 @@ function MenuItemCard({ item, index = 0 }) {
                   ) : (
                     <>
                       <span style={{ fontSize: '16px' }}>+</span>
-                      <span>Add</span>
+                      <span>{t('common.add')}</span>
                     </>
                   )}
                 </button>
@@ -229,12 +231,12 @@ function MenuItemCard({ item, index = 0 }) {
             <div className="p-6">
               {/* Badges */}
               <div className="flex flex-wrap gap-2 mb-3">
-                {item.isPopular && <span className="badge badge-popular">★ Popular</span>}
+                {item.isPopular && <span className="badge badge-popular">{t('itemCard.popularBadge')}</span>}
                 {item.isVegetarian && (
-                  <span className="badge" style={{ background:'#D1FAE5', color:'#065F46' }}>🌱 Vegetarian</span>
+                  <span className="badge" style={{ background:'#D1FAE5', color:'#065F46' }}>{t('itemCard.vegetarianBadge')}</span>
                 )}
                 {item.isSpicy && (
-                  <span className="badge" style={{ background:'#FEE2E2', color:'#991B1B' }}>🌶 Spicy</span>
+                  <span className="badge" style={{ background:'#FEE2E2', color:'#991B1B' }}>{t('itemCard.spicyBadge')}</span>
                 )}
               </div>
 
@@ -249,10 +251,10 @@ function MenuItemCard({ item, index = 0 }) {
               {/* Meta */}
               <div className="flex flex-wrap gap-4 text-sm mb-4" style={{ color: 'var(--color-muted)' }}>
                 {item.preparationTime && (
-                  <span>⏱ {item.preparationTime} min prep time</span>
+                  <span>{t('itemCard.minPrep', { count: item.preparationTime })}</span>
                 )}
                 {item.allergens?.length > 0 && (
-                  <span>⚠️ Contains: {item.allergens.join(', ')}</span>
+                  <span>{t('itemCard.contains', { list: item.allergens.join(', ') })}</span>
                 )}
               </div>
 
@@ -286,11 +288,11 @@ function MenuItemCard({ item, index = 0 }) {
                       onClick={() => { handleAdd(); setShowDetail(false); }}
                       className="btn-primary"
                     >
-                      Add to Order
+                      {t('itemCard.addToOrder')}
                     </button>
                   )
                 ) : (
-                  <span className="badge badge-cancelled">Unavailable</span>
+                  <span className="badge badge-cancelled">{t('itemCard.unavailable')}</span>
                 )}
               </div>
 
@@ -303,7 +305,7 @@ function MenuItemCard({ item, index = 0 }) {
                   color: 'var(--color-muted)',
                 }}
               >
-                Close
+                {t('common.close')}
               </button>
             </div>
           </div>

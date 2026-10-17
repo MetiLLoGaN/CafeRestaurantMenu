@@ -3,6 +3,7 @@ import api from '../../api/axios';
 import Navbar from '../../components/Navbar';
 import QRCodeCard from '../../components/QRCodeCard';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import { useTranslation } from 'react-i18next';
 
 /* Gold divider */
 function GoldDivider() {
@@ -14,6 +15,7 @@ function GoldDivider() {
 }
 
 function TablesPage() {
+  const { t } = useTranslation();
   const [tables, setTables]       = useState([]);
   const [loading, setLoading]     = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -47,7 +49,7 @@ function TablesPage() {
       setShowModal(false);
       setFormData({ tableNumber: '', label: '' });
     } catch (err) {
-      setFormError(err.response?.data?.message || 'Failed to create table. Try again.');
+      setFormError(err.response?.data?.message || t('tables.error'));
     } finally {
       setSaving(false);
     }
@@ -56,16 +58,16 @@ function TablesPage() {
   /* Print all QR codes */
   const handlePrintAll = () => {
     const win = window.open('', '_blank');
-    const qrItems = tables.map((t) => {
-      const svgEl = document.querySelector(`[data-qr="${t._id}"] svg`);
-      return { table: t, svg: svgEl ? svgEl.outerHTML : '' };
+    const qrItems = tables.map((tbl) => {
+      const svgEl = document.querySelector(`[data-qr="${tbl._id}"] svg`);
+      return { table: tbl, svg: svgEl ? svgEl.outerHTML : '' };
     });
 
     win.document.write(`
       <!DOCTYPE html>
       <html>
         <head>
-          <title>All QR Codes</title>
+          <title>${t('tables.printAllTitle')}</title>
           <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans&display=swap" rel="stylesheet">
           <style>
             * { margin:0; padding:0; box-sizing:border-box; }
@@ -89,14 +91,14 @@ function TablesPage() {
         </head>
         <body>
           <div class="grid">
-            ${qrItems.map(({ table: t, svg }) => `
+            ${qrItems.map(({ table: tbl, svg }) => `
               <div class="card">
                 <span class="corner tl">◈</span><span class="corner tr">◈</span>
                 <span class="corner bl">◈</span><span class="corner br">◈</span>
                 <div class="qr-wrap">${svg}</div>
-                <h3>Table ${t.tableNumber}</h3>
-                ${t.label ? `<p>${t.label}</p>` : ''}
-                <p class="scan">📱 Scan to view our menu</p>
+                <h3>${t('common.table', { number: tbl.tableNumber })}</h3>
+                ${tbl.label ? `<p>${tbl.label}</p>` : ''}
+                <p class="scan">${t('tables.printScan')}</p>
               </div>
             `).join('')}
           </div>
@@ -110,7 +112,7 @@ function TablesPage() {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <Navbar title="Tables & QR Codes">
+    <Navbar title={t('tables.title')}>
 
       {/* ── Page header ──────────────────────────────────────── */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-2 animate-fade-up">
@@ -119,10 +121,10 @@ function TablesPage() {
             className="font-display text-2xl"
             style={{ color: 'var(--color-espresso)' }}
           >
-            Tables & QR Codes
+            {t('tables.title')}
           </h1>
           <p className="text-sm mt-0.5" style={{ color: 'var(--color-muted)' }}>
-            {tables.length} table{tables.length !== 1 ? 's' : ''} configured
+            {t('tables.count', { count: tables.length })}
           </p>
         </div>
 
@@ -132,14 +134,14 @@ function TablesPage() {
               onClick={handlePrintAll}
               className="btn-outline-gold text-sm px-4 py-2.5"
             >
-              🖨 Print All
+              {t('tables.printAll')}
             </button>
           )}
           <button
             onClick={() => setShowModal(true)}
             className="btn-primary text-sm px-5 py-2.5"
           >
-            + Add Table
+            {t('tables.addTable')}
           </button>
         </div>
       </div>
@@ -154,16 +156,16 @@ function TablesPage() {
             className="font-display text-2xl mb-2"
             style={{ color: 'var(--color-espresso)' }}
           >
-            No tables yet
+            {t('tables.emptyTitle')}
           </h2>
           <p className="text-sm mb-6" style={{ color: 'var(--color-muted)' }}>
-            Add your first table to generate a QR code for it
+            {t('tables.emptySub')}
           </p>
           <button
             onClick={() => setShowModal(true)}
             className="btn-primary px-7 py-3"
           >
-            + Add First Table
+            {t('tables.addFirstTable')}
           </button>
         </div>
       )}
@@ -205,10 +207,10 @@ function TablesPage() {
                 className="font-display text-xl"
                 style={{ color: 'var(--color-espresso)' }}
               >
-                Add New Table
+                {t('tables.modalTitle')}
               </h2>
               <p className="text-xs mt-1" style={{ color: 'var(--color-muted)' }}>
-                A unique QR code will be generated automatically
+                {t('tables.modalSub')}
               </p>
             </div>
 
@@ -230,7 +232,7 @@ function TablesPage() {
                   className="block text-xs font-semibold uppercase tracking-widest mb-2"
                   style={{ color: 'var(--color-muted)' }}
                 >
-                  Table Number *
+                  {t('tables.tableNumber')}
                 </label>
                 <input
                   type="number"
@@ -239,7 +241,7 @@ function TablesPage() {
                   required
                   min="1"
                   max="999"
-                  placeholder="e.g. 5"
+                  placeholder={t('tables.tableNumberPlaceholder')}
                   className="input-bordered"
                 />
               </div>
@@ -250,14 +252,14 @@ function TablesPage() {
                   className="block text-xs font-semibold uppercase tracking-widest mb-2"
                   style={{ color: 'var(--color-muted)' }}
                 >
-                  Table Label (optional)
+                  {t('tables.tableLabel')}
                 </label>
                 <input
                   type="text"
                   value={formData.label}
                   onChange={(e) => setFormData({ ...formData, label: e.target.value })}
                   maxLength={40}
-                  placeholder="e.g. Window Table, Terrace"
+                  placeholder={t('tables.tableLabelPlaceholder')}
                   className="input-bordered"
                 />
               </div>
@@ -273,12 +275,12 @@ function TablesPage() {
                   {saving ? (
                     <>
                       <span className="spinner" style={{ width: '16px', height: '16px', borderColor: 'var(--color-gold-light)', borderTopColor: 'transparent' }} />
-                      <span>Creating…</span>
+                      <span>{t('tables.creating')}</span>
                     </>
                   ) : (
                     <>
                       <span>🪑</span>
-                      <span>Create Table</span>
+                      <span>{t('tables.createTable')}</span>
                     </>
                   )}
                 </button>
@@ -292,7 +294,7 @@ function TablesPage() {
                     border: '1px solid var(--color-divider)',
                   }}
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
               </div>
             </form>

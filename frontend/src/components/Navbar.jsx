@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import Sidebar from './Sidebar';
 
 function Navbar({ children, title }) {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -12,7 +14,7 @@ function Navbar({ children, title }) {
       {/* Mobile hamburger button */}
       <button
         onClick={() => setSidebarOpen(true)}
-        aria-label="Open menu"
+        aria-label={t('common.openMenu')}
         className="fixed top-4 left-4 z-50 w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg md:hidden transition hover:scale-110"
         style={{ background: 'var(--color-primary)' }}
       >

@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import QRCode from 'react-qr-code';
 import api from '../api/axios';
+import { useTranslation } from 'react-i18next';
 
 function QRCodeCard({ table, onDelete }) {
+  const { t } = useTranslation();
   const [deleting, setDeleting]   = useState(false);
   const [copied, setCopied]       = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -21,7 +23,7 @@ function QRCodeCard({ table, onDelete }) {
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Table ${table.tableNumber} QR Code</title>
+          <title>${t('qr.printTitle', { number: table.tableNumber })}</title>
           <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans&display=swap" rel="stylesheet">
           <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -102,12 +104,12 @@ function QRCodeCard({ table, onDelete }) {
             <span class="corner tr">◈</span>
             <span class="corner bl">◈</span>
             <span class="corner br">◈</span>
-            <p class="restaurant-name">Digital Menu</p>
+            <p class="restaurant-name">${t('common.digitalMenu')}</p>
             <div class="divider"><span>◆</span></div>
             <div class="qr-wrap">${svgHtml}</div>
-            <p class="table-num">Table ${table.tableNumber}</p>
+            <p class="table-num">${t('common.table', { number: table.tableNumber })}</p>
             ${table.label ? `<p class="table-label">${table.label}</p>` : ''}
-            <p class="scan-msg">📱 Scan with your phone camera to view the menu</p>
+            <p class="scan-msg">${t('qr.scanMsg')}</p>
           </div>
         </body>
       </html>
@@ -157,7 +159,7 @@ function QRCodeCard({ table, onDelete }) {
           className="font-display text-xl font-bold"
           style={{ color: 'var(--color-espresso)' }}
         >
-          Table {table.tableNumber}
+          {t('common.table', { number: table.tableNumber })}
         </h3>
         {table.label && (
           <p
@@ -184,7 +186,7 @@ function QRCodeCard({ table, onDelete }) {
               fontFamily: 'var(--font-display)',
             }}
           >
-            🖨 Print
+            {t('qr.print')}
           </button>
 
           <button
@@ -196,13 +198,13 @@ function QRCodeCard({ table, onDelete }) {
               border: '1px solid var(--color-divider)',
             }}
           >
-            {copied ? '✓ Copied!' : '🔗 Copy URL'}
+            {copied ? t('qr.copied') : t('qr.copyUrl')}
           </button>
 
           <button
             onClick={() => setShowConfirm(true)}
             disabled={deleting}
-            aria-label="Delete table"
+            aria-label={t('qr.deleteTable')}
             className="w-9 h-9 rounded-xl flex items-center justify-center transition hover:scale-110 focus-gold"
             style={{ background: '#FEE2E2', color: '#DC2626' }}
           >
@@ -218,10 +220,10 @@ function QRCodeCard({ table, onDelete }) {
             <div className="text-center mb-4">
               <span className="text-4xl">⚠️</span>
               <h3 className="font-display text-xl mt-2" style={{ color: 'var(--color-espresso)' }}>
-                Delete Table {table.tableNumber}?
+                {t('qr.deleteTitle', { number: table.tableNumber })}
               </h3>
               <p className="text-sm mt-1" style={{ color: 'var(--color-muted)' }}>
-                This QR code will stop working. This action cannot be undone.
+                {t('qr.deleteWarning')}
               </p>
             </div>
             <div className="flex gap-3">
@@ -230,14 +232,14 @@ function QRCodeCard({ table, onDelete }) {
                 className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white transition hover:opacity-90"
                 style={{ background: '#DC2626' }}
               >
-                Yes, Delete
+                {t('qr.yesDelete')}
               </button>
               <button
                 onClick={() => setShowConfirm(false)}
                 className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition hover:opacity-90"
                 style={{ background: 'var(--color-cream-dark)', color: 'var(--color-charcoal)' }}
               >
-                Cancel
+                {t('common.cancel')}
               </button>
             </div>
           </div>

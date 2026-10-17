@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import api from '../../api/axios';
 import Navbar from '../../components/Navbar';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import { useTranslation } from 'react-i18next';
 
 function CategoryPage() {
+  const { t } = useTranslation();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -42,7 +44,7 @@ function CategoryPage() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this category?')) return;
+    if (!window.confirm(t('categories.deleteConfirm'))) return;
     try {
       await api.delete(`/menu/categories/${id}`);
       fetchCategories();
@@ -69,12 +71,12 @@ function CategoryPage() {
   return (
     <Navbar>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Categories</h1>
+        <h1 className="text-2xl font-bold">{t('categories.title')}</h1>
         <button
           onClick={() => { resetForm(); setShowModal(true); }}
           className="bg-primary text-white px-4 py-2 rounded-lg font-medium"
         >
-          Add Category
+          {t('categories.addCategory')}
         </button>
       </div>
 
@@ -84,13 +86,13 @@ function CategoryPage() {
             <div className="flex justify-between items-start mb-2">
               <h3 className="font-bold">{category.name}</h3>
               <span className={`px-2 py-1 rounded-full text-xs ${category.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                {category.isActive ? 'Active' : 'Inactive'}
+                {category.isActive ? t('common.active') : t('common.inactive')}
               </span>
             </div>
-            <p className="text-gray-500 text-sm mb-4">{category.description || 'No description'}</p>
+            <p className="text-gray-500 text-sm mb-4">{category.description || t('common.noDescription')}</p>
             <div className="flex gap-2">
-              <button onClick={() => openEdit(category)} className="text-primary">Edit</button>
-              <button onClick={() => handleDelete(category._id)} className="text-red-500">Delete</button>
+              <button onClick={() => openEdit(category)} className="text-primary">{t('common.edit')}</button>
+              <button onClick={() => handleDelete(category._id)} className="text-red-500">{t('common.delete')}</button>
             </div>
           </div>
         ))}
@@ -99,10 +101,10 @@ function CategoryPage() {
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">{editingCategory ? 'Edit Category' : 'Add Category'}</h2>
+            <h2 className="text-xl font-bold mb-4">{editingCategory ? t('categories.editCategory') : t('categories.addCategory')}</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Name</label>
+                <label className="block text-sm font-medium mb-1">{t('common.name')}</label>
                 <input
                   type="text"
                   value={formData.name}
@@ -112,7 +114,7 @@ function CategoryPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Description</label>
+                <label className="block text-sm font-medium mb-1">{t('common.description')}</label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -121,14 +123,14 @@ function CategoryPage() {
               </div>
               <div className="flex gap-2">
                 <button type="submit" className="flex-1 bg-primary text-white py-2 rounded-lg">
-                  Save
+                  {t('common.save')}
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
                   className="flex-1 bg-gray-200 py-2 rounded-lg"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
               </div>
             </form>

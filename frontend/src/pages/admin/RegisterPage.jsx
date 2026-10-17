@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 /* ── Exact colors from the design image ───────────────────────── */
 const C = {
@@ -21,6 +22,7 @@ const C = {
 function RegisterPage() {
   const navigate  = useNavigate();
   const { register, isAuthenticated, loading: authLoading } = useAuth();
+  const { t } = useTranslation();
 
   const [name,           setName]           = useState('');
   const [email,          setEmail]          = useState('');
@@ -43,23 +45,23 @@ function RegisterPage() {
     
     // Validation
     if (!name.trim()) {
-      setError('Please enter your full name.');
+      setError(t('register.errors.enterFullName'));
       return;
     }
     if (!email.trim()) {
-      setError('Please enter your email address.');
+      setError(t('register.errors.enterEmail'));
       return;
     }
     if (!restaurantName.trim()) {
-      setError('Please enter your restaurant name.');
+      setError(t('register.errors.enterRestaurantName'));
       return;
     }
     if (password.length < 6) {
-      setError('Password must be at least 6 characters.');
+      setError(t('register.errors.passwordMin'));
       return;
     }
     if (password !== confirmPassword) {
-      setError('Passwords do not match.');
+      setError(t('register.errors.passwordMismatch'));
       return;
     }
     
@@ -67,7 +69,7 @@ function RegisterPage() {
     setLoading(true);
     const result = await register(name, email, password, restaurantName);
     if (!result.success) {
-      setError(result.message || 'Registration failed. Please try again.');
+      setError(result.message || t('register.errors.failed'));
       setLoading(false);
     }
     // If successful, AuthContext will handle navigation
@@ -142,7 +144,7 @@ function RegisterPage() {
               fontFamily:  '"Playfair Display", Georgia, serif',
             }}
           >
-            The Digital Diner
+            {t('common.brand')}
           </h1>
 
           {/* Subtitle */}
@@ -154,7 +156,7 @@ function RegisterPage() {
               letterSpacing: '0.01em',
             }}
           >
-            Join Our Restaurant Network
+            {t('register.subtitle')}
           </p>
         </div>
 
@@ -178,7 +180,7 @@ function RegisterPage() {
               letterSpacing: '-0.02em',
             }}
           >
-            Create Account
+            {t('register.createAccount')}
           </h2>
           <p
             style={{
@@ -188,7 +190,7 @@ function RegisterPage() {
               lineHeight: 1.5,
             }}
           >
-            Set up your restaurant management account in seconds.
+            {t('register.createDesc')}
           </p>
 
           {/* Error banner */}
@@ -228,7 +230,7 @@ function RegisterPage() {
                   marginBottom:  '8px',
                 }}
               >
-                Full Name
+                {t('register.fullName')}
               </label>
               <div
                 style={{
@@ -249,7 +251,7 @@ function RegisterPage() {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Your full name"
+                  placeholder={t('register.fullNamePlaceholder')}
                   required
                   autoComplete="name"
                   style={{
@@ -279,7 +281,7 @@ function RegisterPage() {
                   marginBottom:  '8px',
                 }}
               >
-                Restaurant Name
+                {t('register.restaurantName')}
               </label>
               <div
                 style={{
@@ -300,7 +302,7 @@ function RegisterPage() {
                   type="text"
                   value={restaurantName}
                   onChange={(e) => setRestaurantName(e.target.value)}
-                  placeholder="e.g., The Digital Diner"
+                  placeholder={t('register.restaurantPlaceholder')}
                   required
                   style={{
                     flex:        1,
@@ -329,7 +331,7 @@ function RegisterPage() {
                   marginBottom:  '8px',
                 }}
               >
-                Email Address
+                {t('register.emailAddress')}
               </label>
               <div
                 style={{
@@ -350,7 +352,7 @@ function RegisterPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@yourrestaurant.com"
+                  placeholder={t('register.emailPlaceholder')}
                   required
                   autoComplete="email"
                   style={{
@@ -379,9 +381,8 @@ function RegisterPage() {
                   marginBottom:  '8px',
                   display:       'block',
                 }}
-              >
-                Create Password
-              </label>
+              >                  {t('register.createPassword')}
+                </label>
 
               {/* Input */}
               <div
@@ -427,7 +428,7 @@ function RegisterPage() {
                   type="button"
                   onClick={() => setShowPw((v) => !v)}
                   tabIndex={-1}
-                  aria-label={showPw ? 'Hide password' : 'Show password'}
+                  aria-label={showPw ? t('common.hidePassword') : t('common.showPassword')}
                   style={{
                     background:  'none',
                     border:      'none',
@@ -452,7 +453,7 @@ function RegisterPage() {
                 </button>
               </div>
               <p style={{ fontSize: '0.75rem', color: C.textMuted, margin: '6px 0 0', marginLeft: '4px' }}>
-                Must be at least 6 characters
+                {t('register.passwordHint')}
               </p>
             </div>
 
@@ -469,9 +470,8 @@ function RegisterPage() {
                   marginBottom:  '8px',
                   display:       'block',
                 }}
-              >
-                Confirm Password
-              </label>
+              >                  {t('register.confirmPassword')}
+                </label>
 
               {/* Input */}
               <div
@@ -517,7 +517,7 @@ function RegisterPage() {
                   type="button"
                   onClick={() => setShowConfirmPw((v) => !v)}
                   tabIndex={-1}
-                  aria-label={showConfirmPw ? 'Hide password' : 'Show password'}
+                  aria-label={showConfirmPw ? t('common.hidePassword') : t('common.showPassword')}
                   style={{
                     background:  'none',
                     border:      'none',
@@ -574,7 +574,7 @@ function RegisterPage() {
             >
               {loading ? (
                 <>
-                  <span>Creating Account</span>
+                  <span>{t('register.creatingAccount')}</span>
                   <div
                     style={{
                       width:           '22px',
@@ -590,7 +590,7 @@ function RegisterPage() {
                 </>
               ) : (
                 <>
-                  <span>Create My Account</span>
+                  <span>{t('register.createMyAccount')}</span>
                   <div
                     style={{
                       width:        '22px',
@@ -620,7 +620,7 @@ function RegisterPage() {
                 margin:       '0 0 6px',
               }}
             >
-              Already have an account?
+              {t('register.alreadyHaveAccount')}
             </p>
             <Link
               to="/admin/login"
@@ -639,7 +639,7 @@ function RegisterPage() {
                 textDecoration: 'none',
               }}
             >
-              Sign in to your account
+              {t('register.signIn')}
               <span style={{ fontSize: '14px' }}>›</span>
             </Link>
           </div>
@@ -661,7 +661,7 @@ function RegisterPage() {
           background:     C.pageBg,
         }}
       >
-        {['System Status', 'Privacy Protocol', 'Contact Concierge'].map((item) => (
+        {[t('footer.systemStatus'), t('footer.privacyProtocol'), t('footer.contactConcierge')].map((item) => (
           <button
             key={item}
             type="button"

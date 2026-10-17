@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 /* ── Exact colors from the design image ───────────────────────── */
 const C = {
@@ -21,6 +22,7 @@ const C = {
 function LoginPage() {
   const navigate  = useNavigate();
   const { login, isAuthenticated, loading: authLoading } = useAuth();
+  const { t } = useTranslation();
 
   const [email,      setEmail]      = useState('');
   const [password,   setPassword]   = useState('');
@@ -40,11 +42,11 @@ function LoginPage() {
     
     // Validation
     if (!email.trim()) {
-      setError('Please enter your email address.');
+      setError(t('login.errors.enterEmail'));
       return;
     }
     if (!password.trim()) {
-      setError('Please enter your password.');
+      setError(t('login.errors.enterPassword'));
       return;
     }
     
@@ -52,7 +54,7 @@ function LoginPage() {
     setLoading(true);
     const result = await login(email, password);
     if (!result.success) {
-      setError(result.message || 'Invalid email or password.');
+      setError(result.message || t('login.errors.invalidCredentials'));
       setLoading(false);
     }
   };
@@ -126,7 +128,7 @@ function LoginPage() {
               fontFamily:  '"Playfair Display", Georgia, serif',
             }}
           >
-            The Digital Diner
+            {t('common.brand')}
           </h1>
 
           {/* Subtitle */}
@@ -138,7 +140,7 @@ function LoginPage() {
               letterSpacing: '0.01em',
             }}
           >
-            Restaurant Management Admin
+            {t('login.subtitle')}
           </p>
         </div>
 
@@ -162,7 +164,7 @@ function LoginPage() {
               letterSpacing: '-0.02em',
             }}
           >
-            Welcome Back
+            {t('login.welcomeBack')}
           </h2>
           <p
             style={{
@@ -172,7 +174,7 @@ function LoginPage() {
               lineHeight: 1.5,
             }}
           >
-            Manage your restaurant operations with precision.
+            {t('login.welcomeDesc')}
           </p>
 
           {/* Error banner */}
@@ -212,7 +214,7 @@ function LoginPage() {
                   marginBottom:  '8px',
                 }}
               >
-                Owner Email
+                {t('login.ownerEmail')}
               </label>
               <div
                 style={{
@@ -233,7 +235,7 @@ function LoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="owner@yourrestaurant.com"
+                  placeholder={t('login.emailPlaceholder')}
                   required
                   autoComplete="email"
                   style={{
@@ -270,7 +272,7 @@ function LoginPage() {
                     textTransform: 'uppercase',
                   }}
                 >
-                  Secure Key
+                  {t('login.secureKey')}
                 </label>
                 <button
                   type="button"
@@ -287,7 +289,7 @@ function LoginPage() {
                   onClick={() => {}}
                   tabIndex={-1}
                 >
-                  Forgot Access?
+                  {t('login.forgotAccess')}
                 </button>
               </div>
 
@@ -335,7 +337,7 @@ function LoginPage() {
                   type="button"
                   onClick={() => setShowPw((v) => !v)}
                   tabIndex={-1}
-                  aria-label={showPw ? 'Hide password' : 'Show password'}
+                  aria-label={showPw ? t('common.hidePassword') : t('common.showPassword')}
                   style={{
                     background:  'none',
                     border:      'none',
@@ -401,7 +403,7 @@ function LoginPage() {
                   color:    C.textBody,
                 }}
               >
-                Stay signed in for 30 days
+                {t('login.staySignedIn')}
               </span>
             </label>
 
@@ -436,7 +438,7 @@ function LoginPage() {
             >
               {loading ? (
                 <>
-                  <span>Entering Dashboard</span>
+                  <span>{t('login.enteringDashboard')}</span>
                   {/* Spinner ring — exactly as in design (right side) */}
                   <div
                     style={{
@@ -453,7 +455,7 @@ function LoginPage() {
                 </>
               ) : (
                 <>
-                  <span>Entering Dashboard</span>
+                  <span>{t('login.enteringDashboard')}</span>
                   {/* Static ring icon when idle — matches design */}
                   <div
                     style={{
@@ -484,7 +486,7 @@ function LoginPage() {
                 margin:       '0 0 6px',
               }}
             >
-              New to the system?
+              {t('login.newToSystem')}
             </p>
             <Link
               to="/admin/register"
@@ -503,7 +505,7 @@ function LoginPage() {
                 textDecoration: 'none',
               }}
             >
-              Register your Restaurant
+              {t('login.registerRestaurant')}
               <span style={{ fontSize: '14px' }}>›</span>
             </Link>
           </div>
@@ -525,7 +527,7 @@ function LoginPage() {
           background:     C.pageBg,
         }}
       >
-        {['System Status', 'Privacy Protocol', 'Contact Concierge'].map((item) => (
+        {[t('footer.systemStatus'), t('footer.privacyProtocol'), t('footer.contactConcierge')].map((item) => (
           <button
             key={item}
             type="button"

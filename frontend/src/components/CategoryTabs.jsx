@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const CATEGORY_EMOJIS = {
   starters:    '🥗',
@@ -27,6 +28,7 @@ function getCategoryEmoji(name = '') {
 }
 
 function CategoryTabs({ categories = [], activeCategory, onCategoryChange }) {
+  const { t } = useTranslation();
   const scrollRef  = useRef(null);
   const activeRef  = useRef(null);
   const [inkStyle, setInkStyle] = useState({ left: 0, width: 0 });
@@ -63,7 +65,7 @@ function CategoryTabs({ categories = [], activeCategory, onCategoryChange }) {
       {/* Left arrow */}
       <button
         onClick={() => scroll('left')}
-        aria-label="Scroll left"
+        aria-label={t('categoryTabs.scrollLeft')}
         className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-md focus-gold transition-transform hover:scale-110"
         style={{
           background: 'var(--color-white)',
@@ -108,7 +110,7 @@ function CategoryTabs({ categories = [], activeCategory, onCategoryChange }) {
           }}
         >
           <span>🍽️</span>
-          <span>All</span>
+          <span>{t('common.all')}</span>
         </button>
 
         {/* Category tabs */}
@@ -143,7 +145,7 @@ function CategoryTabs({ categories = [], activeCategory, onCategoryChange }) {
       {/* Right arrow */}
       <button
         onClick={() => scroll('right')}
-        aria-label="Scroll right"
+        aria-label={t('categoryTabs.scrollRight')}
         className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-md focus-gold transition-transform hover:scale-110"
         style={{
           background: 'var(--color-white)',

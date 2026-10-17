@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import api from '../../api/axios';
 import Navbar from '../../components/Navbar';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import { useTranslation } from 'react-i18next';
 
 const formatPrice = (p) =>
   new Intl.NumberFormat('en-UG', {
@@ -31,6 +32,7 @@ function CountUp({ target, prefix = '', duration = 1200 }) {
 
 /* Stat card */
 function StatCard({ icon, label, value, prefix = '', accent, index }) {
+  const { t } = useTranslation();
   return (
     <div
       className="card-restaurant p-5 animate-fade-up"
@@ -50,7 +52,7 @@ function StatCard({ icon, label, value, prefix = '', accent, index }) {
           className="text-xs font-semibold px-2 py-0.5 rounded-full"
           style={{ background: `${accent}18`, color: accent }}
         >
-          Today
+          {t('dashboard.today')}
         </span>
       </div>
       <p
@@ -78,6 +80,7 @@ const STATUS_COLORS = {
 
 /* Sparkline bar chart — orders by hour */
 function SparklineChart({ data = [] }) {
+  const { t } = useTranslation();
   const max = Math.max(...data.map((d) => d.count), 1);
   return (
     <div className="flex items-end gap-1 h-16">
@@ -85,7 +88,7 @@ function SparklineChart({ data = [] }) {
         <div
           key={i}
           className="flex-1 flex flex-col items-center gap-1"
-          title={`${d.hour} — ${d.count} orders`}
+          title={t('dashboard.ordersTooltip', { hour: d.hour, count: d.count })}
         >
           <div
             className="w-full rounded-t transition-all duration-700"
@@ -120,6 +123,7 @@ function GoldDivider() {
 }
 
 function DashboardPage() {
+  const { t } = useTranslation();
   const [stats, setStats]             = useState(null);
   const [recentOrders, setRecentOrders] = useState([]);
   const [hourlyData, setHourlyData]   = useState([]);
@@ -172,33 +176,33 @@ function DashboardPage() {
   const statCards = [
     {
       icon: '📋',
-      label: 'Orders Today',
+      label: t('dashboard.ordersToday'),
       value: stats?.totalOrdersToday || 0,
       accent: 'var(--color-primary)',
     },
     {
       icon: '💰',
-      label: 'Revenue Today',
+      label: t('dashboard.revenueToday'),
       value: stats?.totalRevenueToday || 0,
       prefix: 'UGX ',
       accent: 'var(--color-gold-dark)',
     },
     {
       icon: '🍽️',
-      label: 'Menu Items',
+      label: t('dashboard.menuItems'),
       value: stats?.menuItemsCount || 0,
       accent: '#2563EB',
     },
     {
       icon: '⏳',
-      label: 'Pending Orders',
+      label: t('dashboard.pendingOrders'),
       value: stats?.pendingOrders || 0,
       accent: '#D97706',
     },
   ];
 
   return (
-    <Navbar title="Dashboard">
+    <Navbar title={t('dashboard.title')}>
       {/* ── Stat cards ─────────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {statCards.map((c, i) => (
@@ -223,14 +227,14 @@ function DashboardPage() {
               className="font-display text-xl"
               style={{ color: 'var(--color-espresso)' }}
             >
-              Recent Orders
+              {t('dashboard.recentOrders')}
             </h2>
             <a
               href="/admin/orders"
               className="text-xs font-semibold transition hover:opacity-70"
               style={{ color: 'var(--color-primary)' }}
             >
-              View all →
+              {t('dashboard.viewAll')}
             </a>
           </div>
           <GoldDivider />
@@ -238,7 +242,7 @@ function DashboardPage() {
           {recentOrders.length === 0 ? (
             <div className="text-center py-10">
               <div className="text-4xl mb-2">🛒</div>
-              <p style={{ color: 'var(--color-muted)' }}>No orders yet today</p>
+              <p style={{ color: 'var(--color-muted)' }}>{t('dashboard.noOrdersToday')}</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -265,10 +269,10 @@ function DashboardPage() {
                           className="text-sm font-semibold"
                           style={{ color: 'var(--color-espresso)' }}
                         >
-                          Table {order.tableNumber}
+                          {t('common.table', { number: order.tableNumber })}
                         </p>
                         <p className="text-xs" style={{ color: 'var(--color-muted)' }}>
-                          {order.items?.length || 0} item{order.items?.length !== 1 ? 's' : ''}
+                          {t('dashboard.itemCount', { count: order.items?.length || 0 })}
                         </p>
                       </div>
                     </div>
@@ -278,7 +282,7 @@ function DashboardPage() {
                         className="badge text-xs"
                         style={{ background: sc.bg, color: sc.text }}
                       >
-                        {order.status}
+                        {t(`common.statuses.${order.status}`, { defaultValue: order.status })}
                       </span>
                       <span
                         className="font-display text-sm font-bold"
@@ -310,7 +314,7 @@ function DashboardPage() {
               className="font-display text-base mb-1"
               style={{ color: 'var(--color-espresso)' }}
             >
-              Orders by Hour
+              {t('dashboard.ordersByHour')}
             </h3>
             <GoldDivider />
             <SparklineChart data={hourlyData} />
@@ -329,14 +333,14 @@ function DashboardPage() {
               className="font-display text-base mb-1"
               style={{ color: 'var(--color-espresso)' }}
             >
-              Quick Stats
+              {t('dashboard.quickStats')}
             </h3>
             <GoldDivider />
             <div className="space-y-3 text-sm">
               {[
-                { label: 'Avg. order value', value: formatPrice((stats?.totalRevenueToday || 0) / Math.max(stats?.totalOrdersToday || 1, 1)) },
-                { label: 'Completed today', value: stats?.completedOrders || 0 },
-                { label: 'Cancelled today', value: stats?.cancelledOrders || 0 },
+                { label: t('dashboard.avgOrderValue'), value: formatPrice((stats?.totalRevenueToday || 0) / Math.max(stats?.totalOrdersToday || 1, 1)) },
+                { label: t('dashboard.completedToday'), value: stats?.completedOrders || 0 },
+                { label: t('dashboard.cancelledToday'), value: stats?.cancelledOrders || 0 },
               ].map((r) => (
                 <div key={r.label} className="flex justify-between items-center">
                   <span style={{ color: 'var(--color-muted)' }}>{r.label}</span>
@@ -353,7 +357,7 @@ function DashboardPage() {
             className="text-xs text-center animate-fade-in"
             style={{ color: 'var(--color-muted)' }}
           >
-            🔄 Last updated {lastRefresh.toLocaleTimeString()}
+            {t('dashboard.lastUpdated', { time: lastRefresh.toLocaleTimeString() })}
           </p>
         </div>
       </div>

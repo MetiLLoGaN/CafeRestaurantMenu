@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import api from '../api/axios';
+import { useTranslation } from 'react-i18next';
 
 const formatPrice = (price) =>
   new Intl.NumberFormat('en-UG', {
@@ -8,23 +9,24 @@ const formatPrice = (price) =>
     minimumFractionDigits: 0,
   }).format(price);
 
-const getTimeAgo = (date) => {
+const getTimeAgo = (date, t) => {
   const secs = Math.floor((Date.now() - new Date(date)) / 1000);
-  if (secs < 60)   return `${secs}s ago`;
-  if (secs < 3600) return `${Math.floor(secs / 60)}m ago`;
-  return `${Math.floor(secs / 3600)}h ago`;
+  if (secs < 60)   return t('common.timeAgo.seconds', { count: secs });
+  if (secs < 3600) return t('common.timeAgo.minutes', { count: Math.floor(secs / 60) });
+  return t('common.timeAgo.hours', { count: Math.floor(secs / 3600) });
 };
 
 const STATUS_META = {
-  pending:   { label: 'Pending',   class: 'badge-pending',   next: 'confirmed',  action: 'Confirm Order',    emoji: '⏳' },
-  confirmed: { label: 'Confirmed', class: 'badge-confirmed', next: 'preparing',  action: 'Start Preparing',  emoji: '✅' },
-  preparing: { label: 'Preparing', class: 'badge-preparing', next: 'ready',      action: 'Mark Ready',       emoji: '👨‍🍳' },
-  ready:     { label: 'Ready',     class: 'badge-ready',     next: 'completed',  action: 'Mark Completed',   emoji: '🔔' },
-  completed: { label: 'Completed', class: 'badge-completed', next: null,         action: null,               emoji: '✓' },
-  cancelled: { label: 'Cancelled', class: 'badge-cancelled', next: null,         action: null,               emoji: '✕' },
+  pending:   { class: 'badge-pending',   next: 'confirmed',  action: 'confirmOrder',    emoji: '⏳' },
+  confirmed: { class: 'badge-confirmed', next: 'preparing',  action: 'startPreparing',  emoji: '✅' },
+  preparing: { class: 'badge-preparing', next: 'ready',      action: 'markReady',       emoji: '👨‍🍳' },
+  ready:     { class: 'badge-ready',     next: 'completed',  action: 'markCompleted',   emoji: '🔔' },
+  completed: { class: 'badge-completed', next: null,         action: null,              emoji: '✓' },
+  cancelled: { class: 'badge-cancelled', next: null,         action: null,              emoji: '✕' },
 };
 
 function OrderCard({ order, onUpdate }) {
+  const { t } = useTranslation();
   const [status, setStatus]     = useState(order.status);
   const [updating, setUpdating] = useState(false);
 
@@ -70,14 +72,14 @@ function OrderCard({ order, onUpdate }) {
             className="font-display text-xl font-bold"
             style={{ color: 'var(--color-espresso)' }}
           >
-            Table {order.tableNumber}
+            {t('common.table', { number: order.tableNumber })}
           </span>
           <span className={`badge ${meta.class}`}>
-            {meta.emoji} {meta.label}
+            {meta.emoji} {t(`common.statuses.${status}`)}
           </span>
         </div>
         <span className="text-xs" style={{ color: 'var(--color-muted)' }}>
-          {getTimeAgo(order.createdAt)}
+          {getTimeAgo(order.createdAt, t)}
         </span>
       </div>
 
@@ -119,7 +121,7 @@ function OrderCard({ order, onUpdate }) {
 
       {/* ── Total ──────────────────────────────────────── */}
       <div className="flex items-center justify-between mb-3">
-        <span className="text-sm" style={{ color: 'var(--color-muted)' }}>Total</span>
+        <span className="text-sm" style={{ color: 'var(--color-muted)' }}>{t('common.total')}</span>
         <span
           className="font-display text-lg font-bold"
           style={{ color: 'var(--color-primary)' }}
@@ -147,7 +149,7 @@ function OrderCard({ order, onUpdate }) {
               ) : (
                 <>
                   <span>{STATUS_META[meta.next]?.emoji}</span>
-                  <span>{meta.action}</span>
+                  <span>{t(`orderCard.${meta.action}`)}</span>
                 </>
               )}
             </button>
@@ -155,7 +157,7 @@ function OrderCard({ order, onUpdate }) {
           <button
             onClick={handleCancel}
             disabled={updating}
-            aria-label="Cancel order"
+            aria-label={t('orderCard.cancelOrder')}
             className="w-10 h-10 rounded-xl flex items-center justify-center transition hover:scale-105 focus-gold flex-shrink-0"
             style={{ background: '#FEE2E2', color: '#DC2626' }}
           >
@@ -173,7 +175,7 @@ function OrderCard({ order, onUpdate }) {
             color:      status === 'completed' ? '#166534' : '#991B1B',
           }}
         >
-          {status === 'completed' ? '✓ Order completed' : '✕ Order cancelled'}
+          {status === 'completed' ? t('orderCard.orderCompleted') : t('orderCard.orderCancelled')}
         </div>
       )}
     </div>

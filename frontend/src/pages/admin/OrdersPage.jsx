@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../api/axios';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import { useTranslation } from 'react-i18next';
 
 /* Web Audio chime — no audio file needed */
 function playChime() {
@@ -24,6 +25,7 @@ function playChime() {
 
 /* Notification Toast */
 function Notification({ message, onClose, tableNumber }) {
+  const { t } = useTranslation();
   useEffect(() => {
     const t = setTimeout(onClose, 5000);
     return () => clearTimeout(t);
@@ -49,13 +51,13 @@ function Notification({ message, onClose, tableNumber }) {
         </div>
         <div className="flex-1">
           <p className="text-sm font-bold">{message}</p>
-          <p className="text-xs opacity-80">Table {tableNumber} is waiting</p>
+          <p className="text-xs opacity-80">{t('orders.tableWaiting', { number: tableNumber })}</p>
         </div>
       </div>
       <button
         onClick={onClose}
         className="text-lg opacity-60 hover:opacity-100 transition flex-shrink-0"
-        aria-label="Dismiss"
+        aria-label={t('orders.dismiss')}
       >
         ›
       </button>
@@ -65,14 +67,15 @@ function Notification({ message, onClose, tableNumber }) {
 
 /* Individual Order Card */
 function OrderCard({ order, onUpdate, kitchenOnline }) {
+  const { t } = useTranslation();
   const [actionLoading, setActionLoading] = useState(false);
 
   const getStatusInfo = (status) => {
     const statusMap = {
-      pending: { label: 'PENDING', color: '#FCD34D', textColor: '#78350F' },
-      preparing: { label: 'PREPARING', color: '#FED7AA', textColor: '#78350F' },
-      ready: { label: 'READY', color: '#86EFAC', textColor: '#166534' },
-      completed: { label: 'COMPLETED', color: '#D1D5DB', textColor: '#374151' },
+      pending: { color: '#FCD34D', textColor: '#78350F' },
+      preparing: { color: '#FED7AA', textColor: '#78350F' },
+      ready: { color: '#86EFAC', textColor: '#166534' },
+      completed: { color: '#D1D5DB', textColor: '#374151' },
     };
     return statusMap[status] || statusMap.pending;
   };
@@ -82,9 +85,8 @@ function OrderCard({ order, onUpdate, kitchenOnline }) {
     const orderTime = new Date(timestamp);
     const diffMs = now - orderTime;
     const diffMins = Math.floor(diffMs / 60000);
-    if (diffMins < 1) return 'Just now';
-    if (diffMins === 1) return '1m ago';
-    return `${diffMins}m ago`;
+    if (diffMins < 1) return t('orders.justNow');
+    return t('common.timeAgo.minutes', { count: diffMins });
   };
 
   const handleConfirmOrder = async () => {
@@ -126,7 +128,7 @@ function OrderCard({ order, onUpdate, kitchenOnline }) {
       <div className="flex items-start justify-between mb-4">
         <div>
           <p className="text-xs font-bold uppercase" style={{ color: '#8C7B6B' }}>
-            TABLE {order.tableNumber}
+            {t('orders.tableLabel', { number: order.tableNumber })}
           </p>
           <h3 className="text-2xl font-black" style={{ color: '#2C1A0E' }}>
             #{order._id.slice(-4).toUpperCase()}
@@ -136,7 +138,7 @@ function OrderCard({ order, onUpdate, kitchenOnline }) {
           className="px-4 py-2 rounded-full text-xs font-bold uppercase"
           style={{ background: statusInfo.color, color: statusInfo.textColor }}
         >
-          {statusInfo.label}
+          {t(`common.statuses.${order.status}`, { defaultValue: order.status })}
         </div>
       </div>
 
@@ -153,7 +155,7 @@ function OrderCard({ order, onUpdate, kitchenOnline }) {
               </p>
               {item.specialInstructions && (
                 <p className="text-xs mt-1" style={{ color: '#8C7B6B' }}>
-                  Note: {item.specialInstructions}
+                  {t('orders.note', { text: item.specialInstructions })}
                 </p>
               )}
             </div>
@@ -168,7 +170,7 @@ function OrderCard({ order, onUpdate, kitchenOnline }) {
           <span className="text-sm font-semibold">{getTimeAgo(order.createdAt)}</span>
         </div>
         <div>
-          <p className="text-xs" style={{ color: '#8C7B6B' }}>Total</p>
+          <p className="text-xs" style={{ color: '#8C7B6B' }}>{t('common.total')}</p>
           <p className="text-lg font-black" style={{ color: '#EA4A0A' }}>
             UGX {order.totalPrice?.toLocaleString() || '0'}
           </p>
@@ -188,7 +190,7 @@ function OrderCard({ order, onUpdate, kitchenOnline }) {
             cursor: actionLoading ? 'not-allowed' : 'pointer',
           }}
         >
-          {actionLoading ? 'Processing...' : 'Confirm Order'}
+          {actionLoading ? t('orders.processing') : t('orders.confirmOrder')}
         </button>
       )}
 
@@ -204,7 +206,7 @@ function OrderCard({ order, onUpdate, kitchenOnline }) {
             cursor: actionLoading ? 'not-allowed' : 'pointer',
           }}
         >
-          {actionLoading ? 'Processing...' : 'Mark Ready'}
+          {actionLoading ? t('orders.processing') : t('orders.markReady')}
         </button>
       )}
 
@@ -213,7 +215,7 @@ function OrderCard({ order, onUpdate, kitchenOnline }) {
           className="w-full py-3.5 rounded-2xl font-bold uppercase text-sm text-center"
           style={{ background: '#86EFAC', color: '#166534' }}
         >
-          Ready for Pickup
+          {t('orders.readyForPickup')}
         </div>
       )}
     </div>
@@ -222,6 +224,7 @@ function OrderCard({ order, onUpdate, kitchenOnline }) {
 
 function OrdersPage() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [orders, setOrders]           = useState([]);
   const [loading, setLoading]         = useState(true);
   const [notification, setNotification] = useState(null);
@@ -248,7 +251,7 @@ function OrdersPage() {
         const newest = sorted.find((o) => !prevOrderIds.current.has(o._id));
         if (newest) {
           setNotification({
-            message: 'New Order Received!',
+            message: t('orders.newOrder'),
             tableNumber: newest.tableNumber
           });
         }
@@ -285,13 +288,13 @@ function OrdersPage() {
         className="sticky top-0 z-40 px-4 py-4 flex items-center justify-between"
         style={{ background: '#FDF6EC', borderBottom: '1px solid #E8D5B7' }}
       >
-        <button className="text-2xl p-2 -ml-2 md:hidden" aria-label="Menu">
+        <button className="text-2xl p-2 -ml-2 md:hidden" aria-label={t('orders.menuAria')}>
           ☰
         </button>
         <h1 className="font-black text-xl flex-1 text-center md:text-left" style={{ color: '#2C1A0E' }}>
           {user?.restaurantName}
         </h1>
-        <button className="text-2xl p-2 -mr-2" aria-label="Cart">
+        <button className="text-2xl p-2 -mr-2" aria-label={t('orders.cartAria')}>
           🛒
         </button>
       </header>
@@ -302,10 +305,10 @@ function OrdersPage() {
         {/* Page Title */}
         <div className="mb-8">
           <h2 className="text-4xl font-black mb-2" style={{ color: '#2C1A0E' }}>
-            Live Orders
+            {t('orders.title')}
           </h2>
           <p className="text-base" style={{ color: '#8C7B6B' }}>
-            Manage your kitchen flow in real-time.
+            {t('orders.subtitle')}
           </p>
         </div>
 
@@ -313,7 +316,7 @@ function OrdersPage() {
         <div className="mb-8 inline-flex items-center gap-2 px-4 py-2.5 rounded-full" 
           style={{ background: '#C6F6D5' }}>
           <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#22C55E' }}></span>
-          <span className="font-semibold text-sm" style={{ color: '#166534' }}>Kitchen Online</span>
+          <span className="font-semibold text-sm" style={{ color: '#166534' }}>{t('orders.kitchenOnline')}</span>
         </div>
 
         {/* Orders List */}
@@ -325,10 +328,10 @@ function OrdersPage() {
             >
               <p className="text-4xl mb-3">😌</p>
               <p className="text-lg font-semibold mb-1" style={{ color: '#2C1A0E' }}>
-                No active orders
+                {t('orders.noActive')}
               </p>
               <p className="text-sm" style={{ color: '#8C7B6B' }}>
-                Waiting for customers to place orders...
+                {t('orders.waiting')}
               </p>
             </div>
           ) : (
@@ -349,7 +352,7 @@ function OrdersPage() {
                 className="cursor-pointer font-semibold py-3 px-4 rounded-lg inline-block"
                 style={{ background: '#FEF3C7', color: '#78350F' }}
               >
-                ✓ Completed ({orders.filter(o => o.status === 'ready' || o.status === 'completed').length})
+                {t('orders.completed', { count: orders.filter(o => o.status === 'ready' || o.status === 'completed').length })}
               </summary>
               <div className="space-y-4 mt-4">
                 {orders
@@ -385,19 +388,19 @@ function OrdersPage() {
         <button className="py-3 px-2 flex flex-col items-center gap-2 rounded-xl transition"
           style={{ background: '#EA4A0A', color: '#FFFFFF' }}>
           <span className="text-xl">🍴</span>
-          <span className="text-xs font-semibold">MENU</span>
+          <span className="text-xs font-semibold">{t('orders.nav.menu')}</span>
         </button>
         <button className="py-3 px-2 flex flex-col items-center gap-2 rounded-xl transition hover:bg-gray-100">
           <span className="text-xl">📋</span>
-          <span className="text-xs font-semibold" style={{ color: '#2C1A0E' }}>ORDER</span>
+          <span className="text-xs font-semibold" style={{ color: '#2C1A0E' }}>{t('orders.nav.order')}</span>
         </button>
         <button className="py-3 px-2 flex flex-col items-center gap-2 rounded-xl transition hover:bg-gray-100">
           <span className="text-xl">☎️</span>
-          <span className="text-xs font-semibold" style={{ color: '#2C1A0E' }}>CALL</span>
+          <span className="text-xs font-semibold" style={{ color: '#2C1A0E' }}>{t('orders.nav.call')}</span>
         </button>
         <button className="py-3 px-2 flex flex-col items-center gap-2 rounded-xl transition hover:bg-gray-100">
           <span className="text-xl">💰</span>
-          <span className="text-xs font-semibold" style={{ color: '#2C1A0E' }}>BILL</span>
+          <span className="text-xs font-semibold" style={{ color: '#2C1A0E' }}>{t('orders.nav.bill')}</span>
         </button>
       </nav>
 

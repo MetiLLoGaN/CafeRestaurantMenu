@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
+import { useTranslation } from 'react-i18next';
 import api from '../../api/axios';
 import MenuItemCard from '../../components/MenuItemCard';
 import CategoryTabs from '../../components/CategoryTabs';
@@ -36,6 +37,7 @@ function GoldDivider() {
 
 /* ── Featured carousel ─────────────────────────────────────────── */
 function FeaturedCarousel({ items }) {
+  const { t } = useTranslation();
   const [current, setCurrent] = useState(0);
   const timerRef = useRef(null);
 
@@ -97,7 +99,7 @@ function FeaturedCarousel({ items }) {
             className="badge badge-popular self-start mb-2"
             style={{ fontFamily: 'var(--font-accent)', fontSize: '13px' }}
           >
-            ★ Chef's Pick
+            {t('menu.chefsPick')}
           </span>
 
           <h3
@@ -147,7 +149,7 @@ function FeaturedCarousel({ items }) {
                 style={{ borderRadius: '9999px', padding: '0.4rem 1.1rem' }}
               >
                 <span>+</span>
-                <span>Add</span>
+                <span>{t('common.add')}</span>
               </button>
             )}
           </div>
@@ -171,7 +173,7 @@ function FeaturedCarousel({ items }) {
             <button
               key={i}
               onClick={() => goTo(i)}
-              aria-label={`Go to slide ${i + 1}`}
+              aria-label={t('menu.goToSlide', { number: i + 1 })}
               className="rounded-full transition-all duration-300"
               style={{
                 width:  i === current ? '20px' : '8px',
@@ -192,11 +194,12 @@ function FeaturedCarousel({ items }) {
 function MenuPage() {
   const [searchParams]  = useSearchParams();
   const navigate        = useNavigate();
+  const { t } = useTranslation();
   const { setTableNumber, setOwnerId, totalItems, openCart } = useCart();
 
   const [menu, setMenu]               = useState([]);
   const [categories, setCategories]   = useState([]);
-  const [restaurantName, setRestaurantName] = useState('Digital Menu');
+  const [restaurantName, setRestaurantName] = useState(t('common.digitalMenu'));
   const [loading, setLoading]         = useState(true);
   const [error, setError]             = useState(null);
   const [activeCategory, setActiveCategory] = useState(null);
@@ -211,7 +214,7 @@ function MenuPage() {
   /* ── Fetch menu ─────────────────────────────────────────────── */
   useEffect(() => {
     if (!ownerId) {
-      setError('Invalid QR code. Please ask your waiter for a new code.');
+      setError(t('menu.invalidQr'));
       setLoading(false);
       return;
     }
@@ -224,7 +227,7 @@ function MenuPage() {
         const { data } = await api.get(`/menu/public?ownerId=${ownerId}`);
         const menuData = data.menu || data.categories || [];
         setMenu(menuData);
-        setRestaurantName(data.restaurantName || 'Digital Menu');
+        setRestaurantName(data.restaurantName || t('common.digitalMenu'));
 
         /* Build unique category list */
         const seen = new Set();
@@ -238,7 +241,7 @@ function MenuPage() {
         });
         setCategories(cats);
       } catch (err) {
-        setError('Unable to load the menu right now. Please try again.');
+        setError(t('menu.loadError'));
         console.error(err);
       } finally {
         setLoading(false);
@@ -296,7 +299,7 @@ function MenuPage() {
     );
 
   /* ── Loading ─────────────────────────────────────────────────── */
-  if (loading) return <LoadingSpinner fullScreen label="Setting the table" />;
+  if (loading) return <LoadingSpinner fullScreen label={t('menu.settingTable')} />;
 
   /* ── Error ───────────────────────────────────────────────────── */
   if (error) {
@@ -308,14 +311,14 @@ function MenuPage() {
         <div className="text-center animate-fade-up max-w-sm">
           <div className="text-5xl mb-4">😕</div>
           <h2 className="font-display text-2xl mb-2" style={{ color: 'var(--color-espresso)' }}>
-            Oops!
+            {t('common.oops')}
           </h2>
           <p className="text-sm mb-6" style={{ color: 'var(--color-muted)' }}>{error}</p>
           <button
             onClick={() => window.location.reload()}
             className="btn-primary px-6 py-2.5 text-sm"
           >
-            Try Again
+            {t('common.tryAgain')}
           </button>
         </div>
       </div>
@@ -361,7 +364,7 @@ function MenuPage() {
                 backdropFilter: 'blur(8px)',
               }}
             >
-              🪑 Table {tableNumber}
+              🪑 {t('common.table', { number: tableNumber })}
             </div>
           )}
 
@@ -391,14 +394,14 @@ function MenuPage() {
               fontSize: '20px',
             }}
           >
-            Crafted with passion, served with love
+            {t('menu.tagline')}
           </p>
 
           <p
             className="mt-2 text-sm opacity-65 animate-fade-up stagger-4"
             style={{ color: 'var(--color-cream)' }}
           >
-            Browse our menu and place your order right from this page
+            {t('menu.subtitle')}
           </p>
 
           {/* Owner login */}
@@ -406,7 +409,7 @@ function MenuPage() {
             onClick={() => navigate('/admin/login')}
             className="btn-outline-gold mt-6 text-xs px-5 py-2 animate-fade-up stagger-5"
           >
-            Restaurant Login
+            {t('menu.restaurantLogin')}
           </button>
         </div>
       </section>
@@ -419,7 +422,7 @@ function MenuPage() {
               className="font-display text-xl text-center animate-fade-up"
               style={{ color: 'var(--color-espresso)' }}
             >
-              ⭐ Chef's Recommendations
+              {t('menu.chefsRecommendations')}
             </h2>
             <GoldDivider />
             <FeaturedCarousel items={featuredItems} />
@@ -447,7 +450,7 @@ function MenuPage() {
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search dishes by name or description…"
+                placeholder={t('menu.searchPlaceholder')}
                 className="flex-1 bg-transparent outline-none text-sm"
                 style={{
                   borderBottom: '2px solid var(--color-gold)',
@@ -460,7 +463,7 @@ function MenuPage() {
                 onClick={() => { setShowSearch(false); setSearchTerm(''); }}
                 className="text-lg"
                 style={{ color: 'var(--color-muted)' }}
-                aria-label="Close search"
+                aria-label={t('menu.closeSearch')}
               >
                 ✕
               </button>
@@ -476,7 +479,7 @@ function MenuPage() {
                 fontStyle: 'italic',
               }}
             >
-              🔍 Search dishes…
+              {t('menu.searchDishes')}
             </button>
           )}
         </div>
@@ -493,10 +496,10 @@ function MenuPage() {
         {/* Dietary filter pills */}
         <div className="flex flex-wrap gap-2 max-w-2xl mx-auto">
           {[
-            { id: 'vegetarian', label: '🌱 Vegetarian' },
-            { id: 'spicy',      label: '🌶 Spicy'       },
-            { id: 'popular',    label: '⭐ Popular'     },
-            { id: 'quick',      label: '⚡ Quick'       },
+            { id: 'vegetarian', label: t('menu.filters.vegetarian') },
+            { id: 'spicy',      label: t('menu.filters.spicy')      },
+            { id: 'popular',    label: t('menu.filters.popular')    },
+            { id: 'quick',      label: t('menu.filters.quick')      },
           ].map((f) => {
             const active = dietaryFilters.includes(f.id);
             return (
@@ -524,7 +527,7 @@ function MenuPage() {
               className="px-3 py-1.5 rounded-full text-xs font-medium transition animate-pop-in"
               style={{ background: '#FEE2E2', color: '#991B1B' }}
             >
-              ✕ Clear
+              {t('menu.clear')}
             </button>
           )}
         </div>
@@ -546,16 +549,16 @@ function MenuPage() {
             <div className="text-center py-16 animate-fade-up">
               <div className="text-5xl mb-3">🍴</div>
               <p className="font-display text-xl" style={{ color: 'var(--color-espresso)' }}>
-                No dishes found
+                {t('menu.noResults')}
               </p>
               <p className="text-sm mt-1" style={{ color: 'var(--color-muted)' }}>
-                Try adjusting your search or filters
+                {t('menu.noResultsSub')}
               </p>
               <button
                 onClick={() => { setDietaryFilters([]); setSearchTerm(''); setActiveCategory(null); }}
                 className="btn-outline-gold mt-4 text-sm px-5 py-2"
               >
-                Show All
+                {t('menu.showAll')}
               </button>
             </div>
           )}
@@ -605,7 +608,7 @@ function MenuPage() {
       {totalItems > 0 && (
         <button
           onClick={openCart}
-          aria-label={`View cart — ${totalItems} items`}
+          aria-label={t('menu.viewCart', { count: totalItems })}
           className="fixed bottom-6 right-5 z-30 w-16 h-16 rounded-full flex items-center justify-center text-2xl shadow-lg transition hover:scale-110 active:scale-95 animate-bounce-in focus-gold"
           style={{ background: 'var(--color-primary)', boxShadow: 'var(--shadow-float)' }}
         >

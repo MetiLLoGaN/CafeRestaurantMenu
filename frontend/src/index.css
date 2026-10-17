@@ -1373,7 +1373,7 @@ textarea.input {
   font-size: 1rem;
   cursor: pointer;
   padding: 0 0 0 6px;
-  margin-left: auto;
+  margin-inline-start: auto;
   transition: opacity 0.2s;
 }
 .toast-close:hover { opacity: 1; }

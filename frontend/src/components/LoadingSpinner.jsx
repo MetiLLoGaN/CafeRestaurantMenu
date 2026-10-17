@@ -1,4 +1,9 @@
-function LoadingSpinner({ fullScreen = true, label = 'Loading' }) {
+import { useTranslation } from 'react-i18next';
+
+function LoadingSpinner({ fullScreen = true, label }) {
+  const { t } = useTranslation();
+  const text = label ?? t('common.loading');
+
   if (fullScreen) {
     return (
       <div
@@ -29,7 +34,7 @@ function LoadingSpinner({ fullScreen = true, label = 'Loading' }) {
           className="font-display text-lg animate-fade-in"
           style={{ color: 'var(--color-espresso)', animationDelay: '0.2s' }}
         >
-          {label}
+          {text}
         </p>
 
         {/* Animated dots */}

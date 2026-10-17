@@ -1,9 +1,11 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 function OrderSuccessPage() {
   const navigate  = useNavigate();
   const location  = useLocation();
+  const { t } = useTranslation();
   const [tableNumber, setTableNumber] = useState(null);
   const [owner, setOwner]             = useState(null);
   const [visible, setVisible]         = useState(false);
@@ -133,7 +135,7 @@ function OrderSuccessPage() {
             transition: 'opacity 0.5s ease 0.9s, transform 0.5s ease 0.9s',
           }}
         >
-          Order Placed! 🎉
+          {t('orderSuccess.title')}
         </h1>
 
         {/* Gold divider */}
@@ -158,7 +160,7 @@ function OrderSuccessPage() {
             transition: 'opacity 0.4s ease 1.2s',
           }}
         >
-          Your order is heading to the kitchen!
+          {t('orderSuccess.subtitle')}
         </p>
         <p
           className="text-sm mb-6"
@@ -168,7 +170,7 @@ function OrderSuccessPage() {
             transition: 'opacity 0.4s ease 1.3s',
           }}
         >
-          Sit back, relax, and we'll take care of the rest.
+          {t('orderSuccess.relax')}
         </p>
 
         {/* Info card */}
@@ -186,9 +188,9 @@ function OrderSuccessPage() {
             <div className="flex items-center gap-3">
               <span className="text-xl">🪑</span>
               <div>
-                <p className="text-xs uppercase tracking-wide" style={{ color: 'var(--color-muted)' }}>Table</p>
+                <p className="text-xs uppercase tracking-wide" style={{ color: 'var(--color-muted)' }}>{t('orderSuccess.tableLabel')}</p>
                 <p className="font-display text-lg font-bold" style={{ color: 'var(--color-espresso)' }}>
-                  Table {tableNumber}
+                  {t('common.table', { number: tableNumber })}
                 </p>
               </div>
             </div>
@@ -197,20 +199,18 @@ function OrderSuccessPage() {
           <div className="flex items-center gap-3">
             <span className="text-xl">⏱</span>
             <div>
-              <p className="text-xs uppercase tracking-wide" style={{ color: 'var(--color-muted)' }}>Estimated Time</p>
-              <p className="font-display text-lg font-bold" style={{ color: 'var(--color-espresso)' }}>
-                15 – 25 minutes
-              </p>
+              <p className="text-xs uppercase tracking-wide" style={{ color: 'var(--color-muted)' }}>{t('orderSuccess.estimatedTime')}</p>
+              <p className="font-display text-lg font-bold" style={{ color: 'var(--color-espresso)' }}>                  {t('orderSuccess.timeRange')}
+                </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             <span className="text-xl">👨‍🍳</span>
             <div>
-              <p className="text-xs uppercase tracking-wide" style={{ color: 'var(--color-muted)' }}>Status</p>
-              <p className="font-display text-lg font-bold" style={{ color: 'var(--color-success)' }}>
-                Received by kitchen
-              </p>
+              <p className="text-xs uppercase tracking-wide" style={{ color: 'var(--color-muted)' }}>{t('orderSuccess.statusLabel')}</p>
+              <p className="font-display text-lg font-bold" style={{ color: 'var(--color-success)' }}>                  {t('orderSuccess.receivedByKitchen')}
+                </p>
             </div>
           </div>
         </div>
@@ -228,10 +228,10 @@ function OrderSuccessPage() {
             className="btn-primary w-full py-3.5 text-base"
             style={{ borderRadius: '14px' }}
           >
-            🍽️ Back to Menu
+            {t('orderSuccess.backToMenu')}
           </button>
           <p className="text-xs" style={{ color: 'var(--color-muted)' }}>
-            You can add more items anytime
+            {t('orderSuccess.addMore')}
           </p>
         </div>
       </div>

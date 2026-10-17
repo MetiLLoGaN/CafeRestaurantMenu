@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import api from '../api/axios';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const formatPrice = (price) =>
   new Intl.NumberFormat('en-UG', {
@@ -27,6 +28,7 @@ function CartDrawer() {
   const [placing, setPlacing]             = useState(false); // overlay animation
   const [error, setError]                 = useState('');
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const serviceFee   = Math.round(totalPrice * 0.05);
   const grandTotal   = totalPrice + serviceFee;
@@ -59,14 +61,14 @@ function CartDrawer() {
       }, 1800);
     } catch (err) {
       setLoading(false);
-      setError(err.response?.data?.message || 'Failed to place order. Please try again.');
+      setError(err.response?.data?.message || t('cart.orderFailed'));
     }
   };
 
   if (!isCartOpen) return null;
 
   return (
-    <div className="cart-overlay" role="dialog" aria-modal="true" aria-label="Your order">
+    <div className="cart-overlay" role="dialog" aria-modal="true" aria-label={t('cart.title')}>
 
       {/* Backdrop — click to close */}
       <div className="absolute inset-0" onClick={closeCart} />
@@ -87,15 +89,15 @@ function CartDrawer() {
               className="font-display text-xl"
               style={{ color: 'var(--color-espresso)' }}
             >
-              Your Order
+              {t('cart.title')}
             </h2>
             <p className="text-xs mt-0.5" style={{ color: 'var(--color-muted)' }}>
-              📍 Table {tableNumber || '--'}
+              📍 {t('common.table', { number: tableNumber || '--' })}
             </p>
           </div>
           <button
             onClick={closeCart}
-            aria-label="Close cart"
+            aria-label={t('cart.closeCart')}
             className="w-9 h-9 rounded-full flex items-center justify-center transition hover:scale-110 focus-gold"
             style={{
               background: 'var(--color-cream-dark)',
@@ -114,16 +116,16 @@ function CartDrawer() {
             <div className="text-center py-16 animate-fade-up">
               <div className="text-5xl mb-3 animate-float">🛒</div>
               <p className="font-display text-lg" style={{ color: 'var(--color-espresso)' }}>
-                Your cart is empty
+                {t('cart.emptyTitle')}
               </p>
               <p className="text-sm mt-1" style={{ color: 'var(--color-muted)' }}>
-                Add some delicious dishes to get started
+                {t('cart.emptySub')}
               </p>
               <button
                 onClick={closeCart}
                 className="btn-outline-gold mt-5 text-sm px-5 py-2"
               >
-                Browse Menu
+                {t('cart.browseMenu')}
               </button>
             </div>
           )}
@@ -162,7 +164,7 @@ function CartDrawer() {
                   {item.name}
                 </p>
                 <p className="text-xs mt-0.5" style={{ color: 'var(--color-muted)' }}>
-                  {formatPrice(item.price)} each
+                  {t('cart.unitPrice', { price: formatPrice(item.price) })}
                 </p>
               </div>
 
@@ -183,7 +185,7 @@ function CartDrawer() {
                 >
                   <button
                     onClick={() => updateQuantity(item._id, item.quantity - 1)}
-                    aria-label="Decrease quantity"
+                    aria-label={t('cart.decreaseQuantity')}
                     className="w-7 h-7 rounded-full flex items-center justify-center text-white text-sm font-bold transition active:scale-90"
                     style={{ background: item.quantity === 1 ? '#DC2626' : 'var(--color-primary)' }}
                   >
@@ -197,7 +199,7 @@ function CartDrawer() {
                   </span>
                   <button
                     onClick={() => updateQuantity(item._id, item.quantity + 1)}
-                    aria-label="Increase quantity"
+                    aria-label={t('cart.increaseQuantity')}
                     className="w-7 h-7 rounded-full flex items-center justify-center text-white text-sm font-bold transition active:scale-90"
                     style={{ background: 'var(--color-primary)' }}
                   >
@@ -221,12 +223,12 @@ function CartDrawer() {
                 className="block text-xs font-semibold uppercase tracking-wider mb-1.5"
                 style={{ color: 'var(--color-muted)' }}
               >
-                💬 Special Requests (optional)
+                💬 {t('cart.specialRequests')}
               </label>
               <textarea
                 value={customerNote}
                 onChange={(e) => setCustomerNote(e.target.value)}
-                placeholder="Any allergies, preferences, or special requests…"
+                placeholder={t('cart.specialPlaceholder')}
                 rows={2}
                 className="input-bordered text-sm resize-none"
                 style={{ fontStyle: 'italic' }}
@@ -236,11 +238,11 @@ function CartDrawer() {
             {/* Price breakdown */}
             <div className="space-y-1.5 text-sm">
               <div className="flex justify-between" style={{ color: 'var(--color-muted)' }}>
-                <span>Subtotal ({items.reduce((s, i) => s + i.quantity, 0)} items)</span>
+                <span>{t('cart.subtotal', { count: items.reduce((s, i) => s + i.quantity, 0) })}</span>
                 <span>{formatPrice(totalPrice)}</span>
               </div>
               <div className="flex justify-between" style={{ color: 'var(--color-muted)' }}>
-                <span>Service (5%)</span>
+                <span>{t('cart.service')}</span>
                 <span>{formatPrice(serviceFee)}</span>
               </div>
               <div
@@ -250,7 +252,7 @@ function CartDrawer() {
                   borderTop: '1px solid var(--color-divider)',
                 }}
               >
-                <span>Total</span>
+                <span>{t('common.total')}</span>
                 <span style={{ color: 'var(--color-primary)' }}>{formatPrice(grandTotal)}</span>
               </div>
             </div>
@@ -270,18 +272,16 @@ function CartDrawer() {
               onClick={handlePlaceOrder}
               disabled={loading}
               className="btn-primary w-full py-4 text-base flex items-center justify-center gap-2 focus-gold"
-              style={{ borderRadius: '14px' }}
-              aria-label="Place your order"
-            >
+              style={{ borderRadius: '14px' }}              aria-label={t('cart.placeOrderAria')}>
               {loading ? (
                 <>
                   <span className="spinner" style={{ width: '18px', height: '18px' }} />
-                  <span>Placing order…</span>
+                  <span>{t('cart.placingOrder')}</span>
                 </>
               ) : (
                 <>
                   <span>🍽️</span>
-                  <span>Place Order · {formatPrice(grandTotal)}</span>
+                  <span>{t('cart.placeOrder', { price: formatPrice(grandTotal) })}</span>
                 </>
               )}
             </button>
@@ -290,7 +290,7 @@ function CartDrawer() {
               className="text-center text-xs"
               style={{ color: 'var(--color-muted)' }}
             >
-              🔒 Your order goes directly to our kitchen
+              🔒 {t('cart.secureNote')}
             </p>
           </div>
         )}
@@ -312,13 +312,13 @@ function CartDrawer() {
             className="font-display text-2xl animate-fade-up"
             style={{ color: 'var(--color-gold)', animationDelay: '0.3s' }}
           >
-            Sending to kitchen…
+            {t('cart.sendingToKitchen')}
           </p>
           <p
             className="text-sm mt-2 animate-fade-up"
             style={{ color: 'rgba(253,246,236,0.7)', animationDelay: '0.5s' }}
           >
-            Please wait a moment
+            {t('cart.pleaseWait')}
           </p>
         </div>
       )}
