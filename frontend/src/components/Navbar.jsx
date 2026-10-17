@@ -15,7 +15,7 @@ function Navbar({ children, title }) {
       <button
         onClick={() => setSidebarOpen(true)}
         aria-label={t('common.openMenu')}
-        className="fixed top-4 left-4 z-50 w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg md:hidden transition hover:scale-110"
+        className="fixed top-4 start-4 z-50 w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg md:hidden transition hover:scale-110"
         style={{ background: 'var(--color-primary)' }}
       >
         ☰
@@ -29,19 +29,19 @@ function Navbar({ children, title }) {
             style={{ background: 'rgba(44,26,14,0.6)', backdropFilter: 'blur(2px)' }}
             onClick={() => setSidebarOpen(false)}
           />
-          <div className="fixed left-0 top-0 z-50 md:hidden animate-slide-in-left h-full">
+          <div className="fixed start-0 top-0 z-50 md:hidden animate-slide-in-left h-full">
             <Sidebar />
           </div>
         </>
       )}
 
       {/* Desktop sidebar */}
-      <div className="hidden md:block fixed left-0 top-0 bottom-0 z-30">
+      <div className="hidden md:block fixed start-0 top-0 bottom-0 z-30">
         <Sidebar />
       </div>
 
       {/* Main content area */}
-      <div className="md:ml-64 flex flex-col min-h-screen">
+      <div className="md:ms-64 flex flex-col min-h-screen">
 
         {/* Top bar */}
         <header
@@ -54,7 +54,7 @@ function Navbar({ children, title }) {
           }}
         >
           <h2
-            className="font-display text-lg ml-12 md:ml-0"
+            className="font-display text-lg ms-12 md:ms-0"
             style={{ color: 'var(--color-espresso)' }}
           >
             {title || ''}

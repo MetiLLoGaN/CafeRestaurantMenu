@@ -127,12 +127,12 @@ function MenuManagementPage() {
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">{t('menuManagement.item')}</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">{t('common.category')}</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">{t('common.price')}</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">{t('common.available')}</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">{t('common.popular')}</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">{t('common.actions')}</th>
+              <th className="px-4 py-3 text-start text-sm font-medium text-gray-500">{t('menuManagement.item')}</th>
+              <th className="px-4 py-3 text-start text-sm font-medium text-gray-500">{t('common.category')}</th>
+              <th className="px-4 py-3 text-start text-sm font-medium text-gray-500">{t('common.price')}</th>
+              <th className="px-4 py-3 text-start text-sm font-medium text-gray-500">{t('common.available')}</th>
+              <th className="px-4 py-3 text-start text-sm font-medium text-gray-500">{t('common.popular')}</th>
+              <th className="px-4 py-3 text-start text-sm font-medium text-gray-500">{t('common.actions')}</th>
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -156,7 +156,7 @@ function MenuManagementPage() {
                     onClick={() => handleToggle(item._id)}
                     className={`w-12 h-6 rounded-full transition-colors ${item.isAvailable ? 'bg-green-500' : 'bg-gray-300'}`}
                   >
-                    <div className={`w-5 h-5 bg-white rounded-full transition-transform ${item.isAvailable ? 'translate-x-6' : 'translate-x-0.5'}`} />
+                    <div className={`w-5 h-5 bg-white rounded-full transition-transform ${item.isAvailable ? 'translate-x-6 rtl:-translate-x-6' : 'translate-x-0.5 rtl:-translate-x-0.5'}`} />
                   </button>
                 </td>
                 <td className="px-4 py-3">
@@ -165,7 +165,7 @@ function MenuManagementPage() {
                   )}
                 </td>
                 <td className="px-4 py-3">
-                  <button onClick={() => openEdit(item)} className="text-primary mr-2">{t('common.edit')}</button>
+                  <button onClick={() => openEdit(item)} className="text-primary me-2">{t('common.edit')}</button>
                   <button onClick={() => handleDelete(item._id)} className="text-red-500">{t('common.delete')}</button>
                 </td>
               </tr>

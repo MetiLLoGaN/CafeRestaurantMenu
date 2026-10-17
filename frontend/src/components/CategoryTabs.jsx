@@ -44,9 +44,10 @@ function CategoryTabs({ categories = [], activeCategory, onCategoryChange }) {
         left:  tab.offsetLeft,
         width: tabRect.width,
       });
-      /* Scroll tab into view */
+      /* Scroll tab into view (RTL documents use negative scroll coordinates) */
+      const centerOffset = tab.offsetLeft - railRect.width / 2 + tabRect.width / 2;
       rail.scrollTo({
-        left: tab.offsetLeft - railRect.width / 2 + tabRect.width / 2,
+        left: document.documentElement.dir === 'rtl' ? -centerOffset : centerOffset,
         behavior: 'smooth',
       });
     }
@@ -66,7 +67,7 @@ function CategoryTabs({ categories = [], activeCategory, onCategoryChange }) {
       <button
         onClick={() => scroll('left')}
         aria-label={t('categoryTabs.scrollLeft')}
-        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-md focus-gold transition-transform hover:scale-110"
+        className="absolute start-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-md focus-gold transition-transform hover:scale-110"
         style={{
           background: 'var(--color-white)',
           border: '1px solid var(--color-divider)',
@@ -146,7 +147,7 @@ function CategoryTabs({ categories = [], activeCategory, onCategoryChange }) {
       <button
         onClick={() => scroll('right')}
         aria-label={t('categoryTabs.scrollRight')}
-        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-md focus-gold transition-transform hover:scale-110"
+        className="absolute end-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-md focus-gold transition-transform hover:scale-110"
         style={{
           background: 'var(--color-white)',
           border: '1px solid var(--color-divider)',

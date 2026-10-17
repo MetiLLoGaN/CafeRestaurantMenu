@@ -175,7 +175,7 @@ function OrderSuccessPage() {
 
         {/* Info card */}
         <div
-          className="rounded-2xl p-5 mb-7 text-left space-y-3 ornament-corners"
+          className="rounded-2xl p-5 mb-7 text-start space-y-3 ornament-corners"
           style={{
             background: 'var(--color-white)',
             border: '1.5px solid var(--color-gold)',

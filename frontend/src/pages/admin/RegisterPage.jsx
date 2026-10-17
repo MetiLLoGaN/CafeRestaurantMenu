@@ -452,7 +452,7 @@ function RegisterPage() {
                   )}
                 </button>
               </div>
-              <p style={{ fontSize: '0.75rem', color: C.textMuted, margin: '6px 0 0', marginLeft: '4px' }}>
+              <p style={{ fontSize: '0.75rem', color: C.textMuted, margin: '6px 0 0', marginInlineStart: '4px' }}>
                 {t('register.passwordHint')}
               </p>
             </div>

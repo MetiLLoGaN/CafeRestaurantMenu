@@ -92,7 +92,7 @@ function OrderCard({ order, onUpdate }) {
           <div key={idx} className="flex justify-between items-center text-sm">
             <span style={{ color: 'var(--color-charcoal)' }}>
               <span
-                className="font-bold mr-1.5 font-display"
+                className="font-bold me-1.5 font-display"
                 style={{ color: 'var(--color-primary)' }}
               >
                 {item.quantity}×

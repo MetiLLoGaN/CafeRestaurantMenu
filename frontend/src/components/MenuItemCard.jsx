@@ -83,7 +83,7 @@ function MenuItemCard({ item, index = 0 }) {
           )}
 
           {/* Badges — top left */}
-          <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5">
+          <div className="absolute top-2.5 start-2.5 flex flex-col gap-1.5">
             {item.isPopular && (
               <span
                 className="badge badge-popular animate-pop-in text-xs px-2.5 py-1"

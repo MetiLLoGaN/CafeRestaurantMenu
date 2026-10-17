@@ -2,7 +2,7 @@
    GOOGLE FONTS — loaded here so no index.html edit is needed
    (Create React App injects <style> tags from CSS imports)
 ═══════════════════════════════════════════════════════════════════ */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Dancing+Script:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Dancing+Script:wght@500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap');
 
 /* ═══════════════════════════════════════════════════════════════════
    TAILWIND DIRECTIVES
@@ -92,6 +92,14 @@
   --z-toast:   70;
 }
 
+/* Persian (fa) — the brand fonts have no Persian glyphs, so lead the stacks
+   with a Persian font that covers fa text. Falls back gracefully. */
+html[lang="fa"] {
+  --font-display: 'Vazirmatn', 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-body:    'Vazirmatn', 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-accent:  'Vazirmatn', 'Dancing Script', cursive;
+}
+
 /* ═══════════════════════════════════════════════════════════════════
    BASE RESET & GLOBALS
 ═══════════════════════════════════════════════════════════════════ */
@@ -141,6 +149,13 @@ a {
 .font-display { font-family: var(--font-display) !important; }
 .font-body    { font-family: var(--font-body)    !important; }
 .font-accent  { font-family: var(--font-accent)  !important; }
+
+/* The Tailwind font-* utilities use static stacks, so mirror the fa override */
+html[lang="fa"] .font-display,
+html[lang="fa"] .font-body,
+html[lang="fa"] .font-accent {
+  font-family: 'Vazirmatn', system-ui, sans-serif !important;
+}
 
 /* ═══════════════════════════════════════════════════════════════════
    SCROLLBAR UTILITIES
@@ -318,6 +333,10 @@ a {
   from { transform: translateX(110%); opacity: 0; }
   to   { transform: translateX(0);    opacity: 1; }
 }
+@keyframes toastSlideInRtl {
+  from { transform: translateX(-110%); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
 @keyframes toastSlideOut {
   from { transform: translateX(0);    opacity: 1; }
   to   { transform: translateX(110%); opacity: 0; }
@@ -402,6 +421,14 @@ a {
 .animate-count-up        { animation: countUp      0.60s var(--ease)        both; }
 .animate-toast-in        { animation: toastSlideIn 0.40s var(--ease-bounce) both; }
 .animate-toast-drop      { animation: toastDropIn  0.40s var(--ease-bounce) both; }
+
+/* RTL mirrors — direction-aware entrance/slide motion */
+[dir="rtl"] .animate-fade-left      { animation-name: fadeRight; }
+[dir="rtl"] .animate-fade-right     { animation-name: fadeLeft; }
+[dir="rtl"] .animate-slide-in-right { animation-name: slideInLeft; }
+[dir="rtl"] .animate-slide-in-left  { animation-name: slideInRight; }
+[dir="rtl"] .toast,
+[dir="rtl"] .animate-toast-in       { animation-name: toastSlideInRtl; }
 
 /* Stagger delay helpers */
 .stagger-1  { animation-delay: 0.06s !important; }
@@ -753,8 +780,8 @@ textarea.input {
   pointer-events: none;
   line-height: 1;
 }
-.ornament::before { top: 9px;    left:  11px; }
-.ornament::after  { bottom: 9px; right: 11px; }
+.ornament::before { top: 9px; inset-inline-start: 11px; }
+.ornament::after  { bottom: 9px; inset-inline-end:   11px; }
 
 /* ═══════════════════════════════════════════════════════════════════
    TOGGLE SWITCH
@@ -778,7 +805,7 @@ textarea.input {
 .toggle input:checked + .toggle-track { background: var(--success); }
 .toggle-thumb {
   position: absolute;
-  top: 3px; left: 3px;
+  top: 3px; inset-inline-start: 3px;
   width: 18px; height: 18px;
   background: white;
   border-radius: 50%;
@@ -787,6 +814,7 @@ textarea.input {
   pointer-events: none;
 }
 .toggle input:checked ~ .toggle-thumb { transform: translateX(20px); }
+[dir="rtl"] .toggle input:checked ~ .toggle-thumb { transform: translateX(-20px); }
 
 /* ═══════════════════════════════════════════════════════════════════
    SPINNER (loading indicator)
@@ -880,7 +908,7 @@ textarea.input {
 }
 .cart-panel {
   position: absolute;
-  top: 0; right: 0; bottom: 0;
+  top: 0; bottom: 0; inset-inline-end: 0;
   width: min(440px, 100vw);
   background: var(--white);
   box-shadow: var(--shadow-xl);
@@ -888,6 +916,8 @@ textarea.input {
   flex-direction: column;
   animation: slideInRight 0.36s var(--ease);
 }
+/* Panel sits at the inline-end edge, so mirror the slide-in origin in RTL */
+[dir="rtl"] .cart-panel { animation-name: slideInLeft; }
 .cart-panel-header {
   padding: 1.1rem 1.25rem;
   border-bottom: 1px solid var(--divider);
@@ -926,8 +956,8 @@ textarea.input {
   border: none;
   background: transparent;
   width: 100%;
-  text-align: left;
-  border-left: 3px solid transparent;
+  text-align: start;
+  border-inline-start: 3px solid transparent;
   transition:
     background     0.22s ease,
     color          0.22s ease,
@@ -938,12 +968,12 @@ textarea.input {
 .sidebar-link:hover {
   background:    var(--sidebar-hover-bg);
   color:         var(--gold-light);
-  border-left-color: rgba(201, 168, 76, 0.4);
+  border-inline-start-color: rgba(201, 168, 76, 0.4);
 }
 .sidebar-link.active {
   background:    var(--sidebar-active-bg);
   color:         var(--gold);
-  border-left-color: var(--gold);
+  border-inline-start-color: var(--gold);
   font-weight:   600;
 }
 .sidebar-link .icon {
@@ -1204,7 +1234,7 @@ textarea.input {
 .hero::before {
   content: '';
   position: absolute;
-  top: -60px; right: -60px;
+  top: -60px; inset-inline-end: -60px;
   width: 240px; height: 240px;
   background: rgba(201, 168, 76, 0.09);
   border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
@@ -1214,7 +1244,7 @@ textarea.input {
 .hero::after {
   content: '';
   position: absolute;
-  bottom: -40px; left: -40px;
+  bottom: -40px; inset-inline-start: -40px;
   width: 180px; height: 180px;
   background: rgba(201, 168, 76, 0.06);
   border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
@@ -1257,7 +1287,7 @@ textarea.input {
 .cart-float {
   position: fixed;
   bottom: 1.75rem;
-  right: 1.25rem;
+  inset-inline-end: 1.25rem;
   z-index: var(--z-sticky);
   width: 62px;
   height: 62px;
@@ -1282,7 +1312,7 @@ textarea.input {
 .cart-float:active { transform: scale(0.95); }
 .cart-float-badge {
   position: absolute;
-  top: -4px; right: -4px;
+  top: -4px; inset-inline-end: -4px;
   min-width: 24px; height: 24px;
   padding: 0 5px;
   border-radius: var(--radius-full);
@@ -1349,7 +1379,7 @@ textarea.input {
 .toast {
   position: fixed;
   top: 1.25rem;
-  right: 1.25rem;
+  inset-inline-end: 1.25rem;
   z-index: var(--z-toast);
   display: flex;
   align-items: center;
@@ -1372,7 +1402,8 @@ textarea.input {
   opacity: 0.65;
   font-size: 1rem;
   cursor: pointer;
-  padding: 0 0 0 6px;
+  padding: 0;
+  padding-inline-start: 6px;
   margin-inline-start: auto;
   transition: opacity 0.2s;
 }
@@ -1414,7 +1445,7 @@ textarea.input {
   .hero        { padding: 2.25rem 1rem; }
   .modal       { border-radius: var(--radius-xl) var(--radius-xl) 0 0; max-height: 95vh; }
   .cart-panel  { width: 100vw; }
-  .cart-float  { width: 54px; height: 54px; bottom: 1.25rem; right: 1rem; font-size: 1.3rem; }
+  .cart-float  { width: 54px; height: 54px; bottom: 1.25rem; inset-inline-end: 1rem; font-size: 1.3rem; }
   .stat-card-value { font-size: 1.7rem; }
 }
 

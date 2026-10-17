@@ -288,13 +288,13 @@ function OrdersPage() {
         className="sticky top-0 z-40 px-4 py-4 flex items-center justify-between"
         style={{ background: '#FDF6EC', borderBottom: '1px solid #E8D5B7' }}
       >
-        <button className="text-2xl p-2 -ml-2 md:hidden" aria-label={t('orders.menuAria')}>
+        <button className="text-2xl p-2 -ms-2 md:hidden" aria-label={t('orders.menuAria')}>
           ☰
         </button>
-        <h1 className="font-black text-xl flex-1 text-center md:text-left" style={{ color: '#2C1A0E' }}>
+        <h1 className="font-black text-xl flex-1 text-center md:text-start" style={{ color: '#2C1A0E' }}>
           {user?.restaurantName}
         </h1>
-        <button className="text-2xl p-2 -mr-2" aria-label={t('orders.cartAria')}>
+        <button className="text-2xl p-2 -me-2" aria-label={t('orders.cartAria')}>
           🛒
         </button>
       </header>
@@ -382,7 +382,7 @@ function OrdersPage() {
 
       {/* Bottom Navigation - Mobile Only */}
       <nav
-        className="fixed bottom-0 left-0 right-0 md:hidden z-40 grid grid-cols-4 gap-1 p-2"
+        className="fixed bottom-0 inset-x-0 md:hidden z-40 grid grid-cols-4 gap-1 p-2"
         style={{ background: '#FFFFFF', borderTop: '1px solid #E8D5B7' }}
       >
         <button className="py-3 px-2 flex flex-col items-center gap-2 rounded-xl transition"

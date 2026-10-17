@@ -158,7 +158,7 @@ function FeaturedCarousel({ items }) {
         {/* Slide counter */}
         {items.length > 1 && (
           <div
-            className="absolute top-3 right-3 text-xs px-2 py-0.5 rounded-full"
+            className="absolute top-3 end-3 text-xs px-2 py-0.5 rounded-full"
             style={{ background: 'rgba(0,0,0,0.4)', color: 'rgba(255,255,255,0.8)' }}
           >
             {current + 1} / {items.length}
@@ -344,11 +344,11 @@ function MenuPage() {
       >
         {/* Decorative circles */}
         <div
-          className="absolute -top-16 -right-16 w-56 h-56 rounded-full opacity-10"
+          className="absolute -top-16 -end-16 w-56 h-56 rounded-full opacity-10"
           style={{ background: 'var(--color-gold)' }}
         />
         <div
-          className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full opacity-8"
+          className="absolute -bottom-10 -start-10 w-40 h-40 rounded-full opacity-8"
           style={{ background: 'var(--color-gold-light)' }}
         />
 
@@ -471,7 +471,7 @@ function MenuPage() {
           ) : (
             <button
               onClick={() => setShowSearch(true)}
-              className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm text-left transition hover:opacity-90"
+              className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm text-start transition hover:opacity-90"
               style={{
                 background: 'var(--color-cream-dark)',
                 border: '1px solid var(--color-divider)',
@@ -609,13 +609,13 @@ function MenuPage() {
         <button
           onClick={openCart}
           aria-label={t('menu.viewCart', { count: totalItems })}
-          className="fixed bottom-6 right-5 z-30 w-16 h-16 rounded-full flex items-center justify-center text-2xl shadow-lg transition hover:scale-110 active:scale-95 animate-bounce-in focus-gold"
+          className="fixed bottom-6 end-5 z-30 w-16 h-16 rounded-full flex items-center justify-center text-2xl shadow-lg transition hover:scale-110 active:scale-95 animate-bounce-in focus-gold"
           style={{ background: 'var(--color-primary)', boxShadow: 'var(--shadow-float)' }}
         >
           🛒
           {/* Count badge */}
           <span
-            className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold font-display animate-pop-in"
+            className="absolute -top-1.5 -end-1.5 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold font-display animate-pop-in"
             style={{
               background: 'var(--color-gold)',
               color: 'var(--color-espresso)',
