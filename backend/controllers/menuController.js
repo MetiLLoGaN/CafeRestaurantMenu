@@ -1,6 +1,8 @@
 const Category = require('../models/Category');
 const MenuItem = require('../models/MenuItem');
+const User = require('../models/User');
 const { removeLocalImage } = require('../middleware/imageUpload');
+const { getEffectiveBranding } = require('../utils/branding');
 
 const getCategories = async (req, res) => {
   try {
@@ -120,6 +122,10 @@ const getPublicMenu = async (req, res) => {
       .populate('category', 'name')
       .sort({ name: 1 });
 
+    /* Restaurant identity + branding for the public menu page. Only
+       public-safe fields are exposed (name and branding — never email). */
+    const owner = await User.findById(ownerId).select('restaurantName branding').lean();
+
     const groupedMenu = categories.map(category => ({
       category: category.name,
       description: category.description,
@@ -128,6 +134,8 @@ const getPublicMenu = async (req, res) => {
 
     res.status(200).json({
       success: true,
+      restaurantName: owner ? owner.restaurantName : undefined,
+      branding: owner ? getEffectiveBranding(owner) : undefined,
       menu: groupedMenu.filter(group => group.items.length > 0)
     });
   } catch (error) {

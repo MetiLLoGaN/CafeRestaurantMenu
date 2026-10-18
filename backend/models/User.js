@@ -1,6 +1,75 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
+const HEX_COLOR = /^#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})$/;
+
+/* Per-restaurant (per-tenant) branding configuration.
+   There is no separate Restaurant collection in this app — the owner User
+   document IS the tenant (all menu data references `owner`), so branding
+   lives here. Defaults match the existing app palette; documents created
+   before this schema existed simply have no stored values and are served
+   through the default-merging helper in utils/branding.js (no migration). */
+const brandingSchema = new mongoose.Schema(
+  {
+    logo: {
+      type: String,
+      default: '',
+      trim: true
+    },
+    primaryColor: {
+      type: String,
+      default: '#8B1A1A',
+      match: [HEX_COLOR, 'Invalid hex color']
+    },
+    primaryHoverColor: {
+      type: String,
+      default: '#A82020',
+      match: [HEX_COLOR, 'Invalid hex color']
+    },
+    secondaryColor: {
+      type: String,
+      default: '#C9A84C',
+      match: [HEX_COLOR, 'Invalid hex color']
+    },
+    accentColor: {
+      type: String,
+      default: '#C9A84C',
+      match: [HEX_COLOR, 'Invalid hex color']
+    },
+    backgroundColor: {
+      type: String,
+      default: '#FDF6EC',
+      match: [HEX_COLOR, 'Invalid hex color']
+    },
+    surfaceColor: {
+      type: String,
+      default: '#FFFFFF',
+      match: [HEX_COLOR, 'Invalid hex color']
+    },
+    primaryTextColor: {
+      type: String,
+      default: '#2C1A0E',
+      match: [HEX_COLOR, 'Invalid hex color']
+    },
+    secondaryTextColor: {
+      type: String,
+      default: '#8C7B6B',
+      match: [HEX_COLOR, 'Invalid hex color']
+    },
+    primaryDarkColor: {
+      type: String,
+      default: '#5C0E0E',
+      match: [HEX_COLOR, 'Invalid hex color']
+    },
+    primaryPaleColor: {
+      type: String,
+      default: '#FBEAEA',
+      match: [HEX_COLOR, 'Invalid hex color']
+    }
+  },
+  { _id: false }
+);
+
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -25,6 +94,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please provide a restaurant name'],
     trim: true
+  },
+  branding: {
+    type: brandingSchema,
+    default: () => ({})
   },
   createdAt: {
     type: Date,

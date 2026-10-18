@@ -8,33 +8,36 @@ module.exports = {
   theme: {
     extend: {
 
-      /* ── Colors — match every CSS variable ───────────────── */
+      /* ── Colors — bound to the CSS custom properties so
+             utilities like bg-primary / text-gold follow the
+             per-restaurant theme (see src/utils/branding.js).
+             Literal fallbacks keep SSR-less first paint safe. ── */
       colors: {
         /* Brand */
         primary:   {
-          DEFAULT: '#8B1A1A',
-          hover:   '#A82020',
-          dark:    '#5C0E0E',
-          pale:    '#FBEAEA',
+          DEFAULT: 'var(--primary, #8B1A1A)',
+          hover:   'var(--primary-hover, #A82020)',
+          dark:    'var(--primary-dark, #5C0E0E)',
+          pale:    'var(--primary-pale, #FBEAEA)',
         },
         gold: {
-          DEFAULT: '#C9A84C',
-          light:   '#E8C97A',
-          dark:    '#9A7A2E',
-          pale:    '#FBF3DC',
+          DEFAULT: 'var(--gold, #C9A84C)',
+          light:   'var(--gold-light, #E8C97A)',
+          dark:    'var(--gold-dark, #9A7A2E)',
+          pale:    'var(--gold-pale, #FBF3DC)',
         },
 
         /* Warm neutrals */
         cream: {
-          DEFAULT: '#FDF6EC',
-          mid:     '#F5E6D0',
-          deep:    '#EDD9B8',
-          deeper:  '#E0C89A',
+          DEFAULT: 'var(--cream, #FDF6EC)',
+          mid:     'var(--cream-mid, #F5E6D0)',
+          deep:    'var(--cream-deep, #EDD9B8)',
+          deeper:  'var(--cream-deeper, #E0C89A)',
         },
-        espresso: '#2C1A0E',
-        charcoal: '#3D2B1F',
-        muted:    '#8C7B6B',
-        divider:  '#E8D5B7',
+        espresso: 'var(--espresso, #2C1A0E)',
+        charcoal: 'var(--charcoal, #3D2B1F)',
+        muted:    'var(--muted, #8C7B6B)',
+        divider:  'var(--divider, #E8D5B7)',
 
         /* Semantic */
         success: {
@@ -55,8 +58,8 @@ module.exports = {
         },
 
         /* Legacy — keep so existing classes don't break */
-        secondary: '#FDF6EC',
-        dark:      '#2C1A0E',
+        secondary: 'var(--secondary, #C9A84C)',
+        dark:      'var(--espresso, #2C1A0E)',
       },
 
       /* ── Typography ───────────────────────────────────────── */
@@ -100,7 +103,7 @@ module.exports = {
         'md':   '0 4px 20px rgba(44,26,14,0.13)',
         'lg':   '0 8px 36px rgba(44,26,14,0.18)',
         'xl':   '0 16px 56px rgba(44,26,14,0.24)',
-        'gold': '0 4px 24px rgba(201,168,76,0.28)',
+        'gold': 'var(--shadow-gold, 0 4px 24px rgba(201,168,76,0.28))',
         'card': '0 2px 12px rgba(44,26,14,0.08), 0 1px 3px rgba(44,26,14,0.05)',
         'inner-gold': 'inset 0 0 0 2px rgba(201,168,76,0.4)',
         'none': 'none',

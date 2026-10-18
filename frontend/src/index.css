@@ -26,6 +26,9 @@
   --gold-dark: #9a7a2e; /* darker for text on light backgrounds     */
   --gold-pale: #fbf3dc; /* lightest gold tint                        */
 
+  --secondary: #c9a84c; /* secondary brand color (structural gold)   */
+  --accent: #c9a84c; /* accent highlights, rings, tints         */
+
   /* ── Neutral warm palette ──────────────────────────────────── */
   --cream: #fdf6ec; /* page background                           */
   --cream-mid: #f5e6d0; /* card backgrounds, inputs                  */
@@ -54,6 +57,8 @@
   --sidebar-hover-bg: rgba(201, 168, 76, 0.1);
   --sidebar-active-bg: rgba(201, 168, 76, 0.18);
   --sidebar-border: rgba(201, 168, 76, 0.2);
+  --sidebar-border-strong: rgba(201, 168, 76, 0.4);
+  --sidebar-muted: rgba(253, 246, 236, 0.45);
 
   /* ── Shadows ───────────────────────────────────────────────── */
   --shadow-xs: 0 1px 4px rgba(44, 26, 14, 0.07);
@@ -62,6 +67,8 @@
   --shadow-lg: 0 8px 36px rgba(44, 26, 14, 0.18);
   --shadow-xl: 0 16px 56px rgba(44, 26, 14, 0.24);
   --shadow-gold: 0 4px 24px rgba(201, 168, 76, 0.28);
+  --shadow-gold-hover: 0 12px 48px rgba(201, 168, 76, 0.35);
+  --shadow-float: 0 12px 32px rgba(44, 26, 14, 0.18);
   --shadow-card:
     0 2px 12px rgba(44, 26, 14, 0.08), 0 1px 3px rgba(44, 26, 14, 0.05);
 
@@ -91,6 +98,43 @@
   --z-overlay: 50;
   --z-modal: 60;
   --z-toast: 70;
+
+  /* ── Accent helper tokens ────────────────────────────────── */
+  --ring-gold: rgba(201, 168, 76, 0.18); /* focus / input ring           */
+  --gold-tint: rgba(201, 168, 76, 0.18); /* translucent gold fill        */
+  --gold-tint-strong: rgba(201, 168, 76, 0.3); /* translucent gold border    */
+  --header-bg: rgba(253, 246, 236, 0.93); /* translucent page surface     */
+
+  /* ═══════════════════════════════════════════════════════════════
+     --color-* ALIASES
+     Components reference the --color-* namespace; these alias the base
+     tokens above so overriding ONE base token (e.g. per-restaurant
+     branding applied to <html>) re-themes the entire UI.
+  ═══════════════════════════════════════════════════════════════ */
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-pale: var(--primary-pale);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
+  --color-gold-dark: var(--gold-dark);
+  --color-gold-pale: var(--gold-pale);
+  --color-cream: var(--cream);
+  --color-cream-mid: var(--cream-mid);
+  --color-cream-dark: var(--cream-mid);
+  --color-cream-deep: var(--cream-deep);
+  --color-cream-deeper: var(--cream-deeper);
+  --color-espresso: var(--espresso);
+  --color-charcoal: var(--charcoal);
+  --color-muted: var(--muted);
+  --color-divider: var(--divider);
+  --color-white: var(--white);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
 }
 
 /* Persian (fa) — the brand fonts have no Persian glyphs, so lead the stacks
@@ -868,7 +912,7 @@ html[lang="fa"] .font-accent {
 }
 .card-gold:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 48px rgba(201, 168, 76, 0.35);
+  box-shadow: var(--shadow-gold-hover);
 }
 .card-cream {
   background: var(--cream-mid);
@@ -1029,7 +1073,7 @@ html[lang="fa"] .font-accent {
 }
 .input:focus {
   border-color: var(--gold);
-  box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.18);
+  box-shadow: 0 0 0 3px var(--ring-gold);
 }
 .input::placeholder {
   color: var(--muted);
@@ -1443,7 +1487,7 @@ textarea.input {
 .sidebar-link:hover {
   background: var(--sidebar-hover-bg);
   color: var(--gold-light);
-  border-inline-start-color: rgba(201, 168, 76, 0.4);
+  border-inline-start-color: var(--sidebar-border-strong);
 }
 .sidebar-link.active {
   background: var(--sidebar-active-bg);
@@ -1760,8 +1804,8 @@ textarea.input {
   gap: 7px;
   padding: 6px 16px;
   border-radius: var(--radius-full);
-  background: rgba(201, 168, 76, 0.18);
-  border: 1px solid rgba(201, 168, 76, 0.35);
+  background: var(--gold-tint);
+  border: 1px solid var(--gold-tint-strong);
   color: var(--gold-light);
   font-size: 0.75rem;
   font-weight: 600;
@@ -1915,7 +1959,7 @@ textarea.input {
   position: sticky;
   top: 0;
   z-index: var(--z-sticky);
-  background: rgba(253, 246, 236, 0.93);
+  background: var(--header-bg);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--divider);

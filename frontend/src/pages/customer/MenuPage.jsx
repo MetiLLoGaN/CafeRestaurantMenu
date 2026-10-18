@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
+import { useBranding } from '../../context/BrandingContext';
 import { useTranslation } from 'react-i18next';
 import api from '../../api/axios';
 import MenuItemCard from '../../components/MenuItemCard';
@@ -198,10 +199,13 @@ function MenuPage() {
   const navigate        = useNavigate();
   const { t } = useTranslation();
   const { setTableNumber, setOwnerId, totalItems, openCart } = useCart();
+  const { previewBranding, restoreBranding } = useBranding();
 
   const [menu, setMenu]               = useState([]);
   const [categories, setCategories]   = useState([]);
   const [restaurantName, setRestaurantName] = useState(t('common.digitalMenu'));
+  const [restaurantLogo, setRestaurantLogo] = useState('');
+  const [heroLogoFailed, setHeroLogoFailed] = useState(false);
   const [loading, setLoading]         = useState(true);
   const [error, setError]             = useState(null);
   const [activeCategory, setActiveCategory] = useState(null);
@@ -231,6 +235,13 @@ function MenuPage() {
         setMenu(menuData);
         setRestaurantName(data.restaurantName || t('common.digitalMenu'));
 
+        /* Apply this restaurant's persisted branding (logo + palette) to
+           the page. Saved theme stays untouched — restoring happens on
+           unmount / error via restoreBranding(). */
+        setRestaurantLogo(data.branding?.logo || '');
+        setHeroLogoFailed(false);
+        previewBranding(data.branding || null);
+
         /* Build unique category list */
         const seen = new Set();
         const cats = [];
@@ -244,6 +255,7 @@ function MenuPage() {
         setCategories(cats);
       } catch (err) {
         setError(t('menu.loadError'));
+        restoreBranding();
         console.error(err);
       } finally {
         setLoading(false);
@@ -251,6 +263,10 @@ function MenuPage() {
     };
 
     fetchMenu();
+
+    /* Leaving the menu (or switching restaurants) restores whatever
+       theme this browser session would otherwise show. */
+    return () => restoreBranding();
   }, [ownerId, tableNumber, setTableNumber, setOwnerId]);
 
   /* ── Auto-focus search ─────────────────────────────────────── */
@@ -360,14 +376,25 @@ function MenuPage() {
             <div
               className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold mb-5 animate-fade-down"
               style={{
-                background: 'rgba(201,168,76,0.18)',
+                background: 'var(--gold-tint)',
                 color: 'var(--color-gold-light)',
-                border: '1px solid rgba(201,168,76,0.3)',
+                border: '1px solid var(--gold-tint-strong)',
                 backdropFilter: 'blur(8px)',
               }}
             >
               🪑 {t('common.table', { number: tableNumber })}
             </div>
+          )}
+
+          {/* Restaurant logo (custom, falls back to hidden when absent) */}
+          {restaurantLogo && !heroLogoFailed && (
+            <img
+              src={resolveImageUrl(restaurantLogo)}
+              alt={restaurantName}
+              className="mx-auto mb-5 h-20 sm:h-24 w-auto object-contain animate-fade-down"
+              style={{ filter: 'drop-shadow(0 6px 18px rgba(0,0,0,0.35))' }}
+              onError={() => setHeroLogoFailed(true)}
+            />
           )}
 
           {/* Restaurant name */}
@@ -436,7 +463,7 @@ function MenuPage() {
       <div
         className="sticky top-0 z-20 px-4 sm:px-6 pt-4 pb-3 space-y-3"
         style={{
-          background: 'rgba(253,246,236,0.94)',
+          background: 'var(--header-bg)',
           backdropFilter: 'blur(10px)',
           borderBottom: '1px solid var(--color-divider)',
           boxShadow: 'var(--shadow-sm)',

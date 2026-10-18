@@ -36,7 +36,7 @@ function Notification({ message, onClose, tableNumber }) {
       className="fixed bottom-24 left-1/2 transform -translate-x-1/2 z-50 px-6 py-4 rounded-full shadow-lg flex items-center justify-between gap-4 animate-slide-up"
       style={{
         background: '#2C2C2C',
-        color: '#FFFFFF',
+        color: 'var(--color-white)',
         maxWidth: '90%',
         width: '100%',
         maxWidth: '400px',
@@ -122,15 +122,15 @@ function OrderCard({ order, onUpdate, kitchenOnline }) {
   return (
     <div
       className="rounded-3xl p-6 shadow-md transition-all"
-      style={{ background: '#FFFFFF', border: '1px solid #E8D5B7' }}
+      style={{ background: 'var(--color-white)', border: '1px solid #E8D5B7' }}
     >
       {/* Header: Table + Order ID + Status */}
       <div className="flex items-start justify-between mb-4">
         <div>
-          <p className="text-xs font-bold uppercase" style={{ color: '#8C7B6B' }}>
+          <p className="text-xs font-bold uppercase" style={{ color: 'var(--color-muted)' }}>
             {t('orders.tableLabel', { number: order.tableNumber })}
           </p>
-          <h3 className="text-2xl font-black" style={{ color: '#2C1A0E' }}>
+          <h3 className="text-2xl font-black" style={{ color: 'var(--color-espresso)' }}>
             #{order._id.slice(-4).toUpperCase()}
           </h3>
         </div>
@@ -143,18 +143,18 @@ function OrderCard({ order, onUpdate, kitchenOnline }) {
       </div>
 
       {/* Items list */}
-      <div className="space-y-2 mb-5 pb-5 border-b" style={{ borderColor: '#E8D5B7' }}>
+      <div className="space-y-2 mb-5 pb-5 border-b" style={{ borderColor: 'var(--color-divider)' }}>
         {order.items.map((item, idx) => (
           <div key={idx} className="flex items-start gap-3">
             <span className="text-xl flex-shrink-0">
               {item.category === 'Drinks' ? '🥤' : '🍽️'}
             </span>
             <div className="flex-1">
-              <p className="font-semibold text-sm" style={{ color: '#2C1A0E' }}>
+              <p className="font-semibold text-sm" style={{ color: 'var(--color-espresso)' }}>
                 {item.name} x{item.quantity}
               </p>
               {item.specialInstructions && (
-                <p className="text-xs mt-1" style={{ color: '#8C7B6B' }}>
+                <p className="text-xs mt-1" style={{ color: 'var(--color-muted)' }}>
                   {t('orders.note', { text: item.specialInstructions })}
                 </p>
               )}
@@ -170,7 +170,7 @@ function OrderCard({ order, onUpdate, kitchenOnline }) {
           <span className="text-sm font-semibold">{getTimeAgo(order.createdAt)}</span>
         </div>
         <div>
-          <p className="text-xs" style={{ color: '#8C7B6B' }}>{t('common.total')}</p>
+          <p className="text-xs" style={{ color: 'var(--color-muted)' }}>{t('common.total')}</p>
           <p className="text-lg font-black" style={{ color: '#EA4A0A' }}>
             UGX {order.totalPrice?.toLocaleString() || '0'}
           </p>
@@ -185,7 +185,7 @@ function OrderCard({ order, onUpdate, kitchenOnline }) {
           className="w-full py-3.5 rounded-2xl font-bold uppercase text-sm transition-all"
           style={{
             background: '#EA4A0A',
-            color: '#FFFFFF',
+            color: 'var(--color-white)',
             opacity: actionLoading ? 0.7 : 1,
             cursor: actionLoading ? 'not-allowed' : 'pointer',
           }}
@@ -281,17 +281,17 @@ function OrdersPage() {
   return (
     <div
       className="min-h-screen pb-24 md:pb-8"
-      style={{ background: '#FDF6EC' }}
+      style={{ background: 'var(--color-cream)' }}
     >
       {/* Top Header with Restaurant Name */}
       <header
         className="sticky top-0 z-40 px-4 py-4 flex items-center justify-between"
-        style={{ background: '#FDF6EC', borderBottom: '1px solid #E8D5B7' }}
+        style={{ background: 'var(--color-cream)', borderBottom: '1px solid #E8D5B7' }}
       >
         <button className="text-2xl p-2 -ms-2 md:hidden" aria-label={t('orders.menuAria')}>
           ☰
         </button>
-        <h1 className="font-black text-xl flex-1 text-center md:text-start" style={{ color: '#2C1A0E' }}>
+        <h1 className="font-black text-xl flex-1 text-center md:text-start" style={{ color: 'var(--color-espresso)' }}>
           {user?.restaurantName}
         </h1>
         <button className="text-2xl p-2 -me-2" aria-label={t('orders.cartAria')}>
@@ -304,10 +304,10 @@ function OrdersPage() {
 
         {/* Page Title */}
         <div className="mb-8">
-          <h2 className="text-4xl font-black mb-2" style={{ color: '#2C1A0E' }}>
+          <h2 className="text-4xl font-black mb-2" style={{ color: 'var(--color-espresso)' }}>
             {t('orders.title')}
           </h2>
-          <p className="text-base" style={{ color: '#8C7B6B' }}>
+          <p className="text-base" style={{ color: 'var(--color-muted)' }}>
             {t('orders.subtitle')}
           </p>
         </div>
@@ -324,13 +324,13 @@ function OrdersPage() {
           {activeOrders.length === 0 ? (
             <div
               className="rounded-3xl p-12 text-center"
-              style={{ background: '#FFFFFF', border: '2px dashed #E8D5B7' }}
+              style={{ background: 'var(--color-white)', border: '2px dashed #E8D5B7' }}
             >
               <p className="text-4xl mb-3">😌</p>
-              <p className="text-lg font-semibold mb-1" style={{ color: '#2C1A0E' }}>
+              <p className="text-lg font-semibold mb-1" style={{ color: 'var(--color-espresso)' }}>
                 {t('orders.noActive')}
               </p>
-              <p className="text-sm" style={{ color: '#8C7B6B' }}>
+              <p className="text-sm" style={{ color: 'var(--color-muted)' }}>
                 {t('orders.waiting')}
               </p>
             </div>
@@ -383,24 +383,24 @@ function OrdersPage() {
       {/* Bottom Navigation - Mobile Only */}
       <nav
         className="fixed bottom-0 inset-x-0 md:hidden z-40 grid grid-cols-4 gap-1 p-2"
-        style={{ background: '#FFFFFF', borderTop: '1px solid #E8D5B7' }}
+        style={{ background: 'var(--color-white)', borderTop: '1px solid #E8D5B7' }}
       >
         <button className="py-3 px-2 flex flex-col items-center gap-2 rounded-xl transition"
-          style={{ background: '#EA4A0A', color: '#FFFFFF' }}>
+          style={{ background: '#EA4A0A', color: 'var(--color-white)' }}>
           <span className="text-xl">🍴</span>
           <span className="text-xs font-semibold">{t('orders.nav.menu')}</span>
         </button>
         <button className="py-3 px-2 flex flex-col items-center gap-2 rounded-xl transition hover:bg-gray-100">
           <span className="text-xl">📋</span>
-          <span className="text-xs font-semibold" style={{ color: '#2C1A0E' }}>{t('orders.nav.order')}</span>
+          <span className="text-xs font-semibold" style={{ color: 'var(--color-espresso)' }}>{t('orders.nav.order')}</span>
         </button>
         <button className="py-3 px-2 flex flex-col items-center gap-2 rounded-xl transition hover:bg-gray-100">
           <span className="text-xl">☎️</span>
-          <span className="text-xs font-semibold" style={{ color: '#2C1A0E' }}>{t('orders.nav.call')}</span>
+          <span className="text-xs font-semibold" style={{ color: 'var(--color-espresso)' }}>{t('orders.nav.call')}</span>
         </button>
         <button className="py-3 px-2 flex flex-col items-center gap-2 rounded-xl transition hover:bg-gray-100">
           <span className="text-xl">💰</span>
-          <span className="text-xs font-semibold" style={{ color: '#2C1A0E' }}>{t('orders.nav.bill')}</span>
+          <span className="text-xs font-semibold" style={{ color: 'var(--color-espresso)' }}>{t('orders.nav.bill')}</span>
         </button>
       </nav>
 

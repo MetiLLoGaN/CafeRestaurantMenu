@@ -149,6 +149,25 @@ Frontend:
 - QR code links are generated using `FRONTEND_URL`, so keep it aligned with the address where the frontend is running.
 - Cloudinary is required only if you want image upload features to work.
 
+## Restaurant Branding & Theming
+
+Each restaurant (the owner account) has a persistent branding configuration stored in MongoDB on the `User` document (`branding` subdocument): logo, primary/hover colors, secondary and accent colors, page background, surface, primary/secondary text, plus light and dark brand variants. Restaurants that predate this feature keep working with the default palette — no migration needed.
+
+- Admin: **Theme & Branding** page at `/admin/theme` (upload/replace/remove logo, color pickers with live preview, restore defaults, save).
+- Public menu: the restaurant logo, name and palette are applied automatically on `/menu?owner=…` (delivered with the existing public-menu request).
+- API: `GET /api/branding`, `PUT /api/branding` (or `{ "reset": true }`), `POST /api/branding/logo` (multipart field `logo`), `DELETE /api/branding/logo` — all require a JWT and are scoped to the authenticated owner.
+- Logo rules differ from menu-item images on purpose: PNG/JPEG/WebP only (no SVG/GIF), 2 MB max, magic-byte validation, server-generated `logo-<ownerId>-…` filenames, and file deletion is restricted to the caller's own logo files.
+- Theming is centralized through CSS custom properties (`frontend/src/utils/branding.js` + `index.css`); components must consume the tokens instead of hardcoded colors.
+
+### Production storage considerations
+
+Uploads (menu images and logos) are stored on the **local disk** under `backend/uploads/` and served statically at `/uploads`. This is fine for a single-instance deployment, but note:
+
+- On platforms with ephemeral filesystems (Heroku, serverless, containers), attach a persistent volume or move uploads to object storage (S3, Cloudinary, …) — otherwise files disappear on redeploy.
+- For multi-instance deployments, use shared storage or a CDN in front of `/uploads`; local disk is not shared between instances.
+- In production, terminate TLS and point `REACT_APP_API_URL` at the API origin so `/uploads/…` URLs resolve correctly; consider an nginx `location /uploads` alias with long-lived cache headers.
+- `backend/utils/cloudinary.js` and `backend/middleware/uploadMiddleware.js` remain available if you prefer Cloudinary for media storage.
+
 ## Future Improvements
 
 - Payment integration

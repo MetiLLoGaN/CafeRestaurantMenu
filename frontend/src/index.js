@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
+import { BrandingProvider } from "./context/BrandingContext";
 import "./i18n";
 import "./index.css";
 
@@ -13,7 +14,9 @@ root.render(
     <BrowserRouter>
       <AuthProvider>
         <CartProvider>
-          <App />
+          <BrandingProvider>
+            <App />
+          </BrandingProvider>
         </CartProvider>
       </AuthProvider>
     </BrowserRouter>

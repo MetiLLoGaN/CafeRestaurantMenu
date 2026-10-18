@@ -8,6 +8,7 @@ import MenuManagementPage from './pages/admin/MenuManagementPage';
 import CategoryPage from './pages/admin/CategoryPage';
 import OrdersPage from './pages/admin/OrdersPage';
 import TablesPage from './pages/admin/TablesPage';
+import ThemeSettingsPage from './pages/admin/ThemeSettingsPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -41,6 +42,11 @@ function App() {
       <Route path="/admin/tables" element={
         <ProtectedRoute>
           <TablesPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/admin/theme" element={
+        <ProtectedRoute>
+          <ThemeSettingsPage />
         </ProtectedRoute>
       } />
     </Routes>

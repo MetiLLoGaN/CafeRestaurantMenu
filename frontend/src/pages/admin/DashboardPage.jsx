@@ -44,13 +44,13 @@ function StatCard({ icon, label, value, prefix = '', accent, index }) {
       <div className="flex items-start justify-between mb-3">
         <div
           className="w-11 h-11 rounded-xl flex items-center justify-center text-xl"
-          style={{ background: `${accent}18` }}
+          style={{ background: `color-mix(in srgb, ${accent} 10%, transparent)` }}
         >
           {icon}
         </div>
         <span
           className="text-xs font-semibold px-2 py-0.5 rounded-full"
-          style={{ background: `${accent}18`, color: accent }}
+          style={{ background: `color-mix(in srgb, ${accent} 10%, transparent)`, color: accent }}
         >
           {t('dashboard.today')}
         </span>

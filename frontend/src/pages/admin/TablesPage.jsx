@@ -58,6 +58,16 @@ function TablesPage() {
   /* Print all QR codes */
   const handlePrintAll = () => {
     const win = window.open('', '_blank');
+
+    /* The print window can't inherit the app's CSS variables, so bake
+       the CURRENT (restaurant-themed) token values into its styles. */
+    const rootStyle = getComputedStyle(document.documentElement);
+    const token = (name, fallback) => rootStyle.getPropertyValue(name).trim() || fallback;
+    const goldColor = token('--gold', '#C9A84C');
+    const primaryColor = token('--primary', '#8B1A1A');
+    const creamColor = token('--cream', '#FDF6EC');
+    const mutedColor = token('--muted', '#8C7B6B');
+
     const qrItems = tables.map((tbl) => {
       const svgEl = document.querySelector(`[data-qr="${tbl._id}"] svg`);
       return { table: tbl, svg: svgEl ? svgEl.outerHTML : '' };
@@ -74,18 +84,18 @@ function TablesPage() {
             body { font-family:'DM Sans',sans-serif; background:#fff; padding:24px; }
             .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
             .card {
-              border:2px solid #C9A84C; border-radius:16px;
+              border:2px solid ${goldColor}; border-radius:16px;
               padding:20px; text-align:center; page-break-inside:avoid;
               position:relative;
             }
-            .corner { position:absolute; font-size:14px; color:#C9A84C; opacity:0.5; }
+            .corner { position:absolute; font-size:14px; color:${goldColor}; opacity:0.5; }
             .corner.tl{top:8px;left:10px} .corner.tr{top:8px;right:10px}
             .corner.bl{bottom:8px;left:10px} .corner.br{bottom:8px;right:10px}
-            .qr-wrap { background:#FDF6EC; border-radius:10px; padding:12px; margin-bottom:12px; }
+            .qr-wrap { background:${creamColor}; border-radius:10px; padding:12px; margin-bottom:12px; }
             .qr-wrap svg { width:180px!important; height:180px!important; }
-            h3 { font-family:'Playfair Display',serif; font-size:22px; color:#8B1A1A; }
-            p  { font-size:12px; color:#8C7B6B; margin-top:3px; font-style:italic; }
-            .scan { font-size:10px; color:#8C7B6B; margin-top:10px; }
+            h3 { font-family:'Playfair Display',serif; font-size:22px; color:${primaryColor}; }
+            p  { font-size:12px; color:${mutedColor}; margin-top:3px; font-style:italic; }
+            .scan { font-size:10px; color:${mutedColor}; margin-top:10px; }
             @media print { body{padding:8px} }
           </style>
         </head>

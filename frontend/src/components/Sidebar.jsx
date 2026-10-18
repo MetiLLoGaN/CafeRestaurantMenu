@@ -1,6 +1,9 @@
+import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useBranding } from "../context/BrandingContext";
 import { useTranslation } from "react-i18next";
+import resolveImageUrl from "../utils/resolveImageUrl";
 
 const navItems = [
   { path: "/admin/dashboard", labelKey: "sidebar.dashboard", icon: "📊" },
@@ -8,12 +11,24 @@ const navItems = [
   { path: "/admin/categories", labelKey: "sidebar.categories", icon: "📂" },
   { path: "/admin/orders", labelKey: "sidebar.liveOrders", icon: "🛒" },
   { path: "/admin/tables", labelKey: "sidebar.tablesQr", icon: "🪑" },
+  { path: "/admin/theme", labelKey: "sidebar.theme", icon: "🎨" },
 ];
 
 function Sidebar() {
   const { logout, user } = useAuth();
+  const { branding } = useBranding();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
+  const [logoFailed, setLogoFailed] = useState(false);
+
+  /* Reset the fallback flag whenever a new logo arrives */
+  useEffect(() => {
+    setLogoFailed(false);
+  }, [branding?.logo]);
+
+  const customLogo = branding?.logo && !logoFailed
+    ? resolveImageUrl(branding.logo)
+    : null;
 
   const handleLogout = () => {
     logout();
@@ -42,13 +57,22 @@ function Sidebar() {
       {/* ── Brand ──────────────────────────────────────────── */}
       <div
         className="px-6 py-7"
-        style={{ borderBottom: "1px solid rgba(201,168,76,0.18)" }}>
-        {/* Logo mark */}
+        style={{ borderBottom: "1px solid var(--sidebar-border)" }}>
+        {/* Logo mark — the restaurant's own logo, or the default brand mark */}
         <div className="flex items-center gap-3 mb-1">
           <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center text-xl animate-gold-glow"
+            className="w-10 h-10 rounded-xl flex items-center justify-center text-xl overflow-hidden flex-shrink-0 animate-gold-glow"
             style={{ background: "var(--color-primary)" }}>
-            🍽️
+            {customLogo ? (
+              <img
+                src={customLogo}
+                alt={user?.restaurantName || t("sidebar.brandFallback")}
+                className="w-full h-full object-contain p-0.5"
+                onError={() => setLogoFailed(true)}
+              />
+            ) : (
+              <span>🍽️</span>
+            )}
           </div>
           <div>
             <h1
@@ -56,7 +80,7 @@ function Sidebar() {
               style={{ color: "var(--color-gold)" }}>
               {user?.restaurantName || t("sidebar.brandFallback")}
             </h1>
-            <p className="text-xs" style={{ color: "rgba(253,246,236,0.45)" }}>
+            <p className="text-xs" style={{ color: "var(--sidebar-muted)" }}>
               {t("sidebar.adminPanel")}
             </p>
           </div>
@@ -89,14 +113,12 @@ function Sidebar() {
         ))}
       </nav>
 
-      {/* ── User card + logout ─────────────────────────────── */}
-      <div
-        className="px-4 py-5"
-        style={{ borderTop: "1px solid rgba(201,168,76,0.18)" }}>
+      {/* ── User card + logout ─────────────────────────────── */}      <div className="px-4 py-5"
+        style={{ borderTop: "1px solid var(--sidebar-border)" }}>
         {/* User info */}
         <div
           className="flex items-center gap-3 p-3 rounded-xl mb-3"
-          style={{ background: "rgba(201,168,76,0.08)" }}>
+          style={{ background: "var(--sidebar-hover-bg)" }}>
           <div
             className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold font-display flex-shrink-0"
             style={{
@@ -110,10 +132,8 @@ function Sidebar() {
               className="text-sm font-semibold truncate"
               style={{ color: "var(--color-cream)" }}>
               {user?.name || t("sidebar.ownerFallback")}
-            </p>
-            <p
-              className="text-xs truncate"
-              style={{ color: "rgba(253,246,236,0.45)" }}>
+            </p>            <p className="text-xs truncate"
+              style={{ color: "var(--sidebar-muted)" }}>
               {user?.email || ""}
             </p>
           </div>

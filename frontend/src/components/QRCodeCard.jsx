@@ -19,6 +19,17 @@ function QRCodeCard({ table, onDelete }) {
   const handlePrint = () => {
     const win = window.open('', '_blank', 'width=480,height=620');
     const svgHtml = document.querySelector(`[data-qr="${table._id}"] svg`)?.outerHTML || '';
+
+    /* The print window is a separate document — bake the current
+       (restaurant-themed) token values into its styles. */
+    const rootStyle = getComputedStyle(document.documentElement);
+    const token = (name, fallback) => rootStyle.getPropertyValue(name).trim() || fallback;
+    const goldColor = token('--gold', '#C9A84C');
+    const primaryColor = token('--primary', '#8B1A1A');
+    const espressoColor = token('--espresso', '#2C1A0E');
+    const creamColor = token('--cream', '#FDF6EC');
+    const mutedColor = token('--muted', '#8C7B6B');
+    const dividerColor = token('--divider', '#E8D5B7');
     win.document.write(`
       <!DOCTYPE html>
       <html>
@@ -29,7 +40,7 @@ function QRCodeCard({ table, onDelete }) {
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body {
               font-family: 'DM Sans', sans-serif;
-              background: #FDF6EC;
+              background: ${creamColor};
               display: flex;
               align-items: center;
               justify-content: center;
@@ -38,7 +49,7 @@ function QRCodeCard({ table, onDelete }) {
             }
             .card {
               background: white;
-              border: 2px solid #C9A84C;
+              border: 2px solid ${goldColor};
               border-radius: 20px;
               padding: 2.5rem 2rem;
               text-align: center;
@@ -47,7 +58,7 @@ function QRCodeCard({ table, onDelete }) {
               box-shadow: 0 8px 40px rgba(44,26,14,0.15);
               position: relative;
             }
-            .corner { position: absolute; font-size: 16px; color: #C9A84C; opacity: 0.6; }
+            .corner { position: absolute; font-size: 16px; color: ${goldColor}; opacity: 0.6; }
             .corner.tl { top: 10px; left: 12px; }
             .corner.tr { top: 10px; right: 12px; }
             .corner.bl { bottom: 10px; left: 12px; }
@@ -55,7 +66,7 @@ function QRCodeCard({ table, onDelete }) {
             .restaurant-name {
               font-family: 'Playfair Display', serif;
               font-size: 20px;
-              color: #2C1A0E;
+              color: ${espressoColor};
               margin-bottom: 6px;
             }
             .divider {
@@ -64,34 +75,34 @@ function QRCodeCard({ table, onDelete }) {
             }
             .divider::before, .divider::after {
               content: ''; flex: 1; height: 1px;
-              background: linear-gradient(to right, transparent, #C9A84C, transparent);
+              background: linear-gradient(to right, transparent, ${goldColor}, transparent);
               opacity: 0.6;
             }
-            .divider span { color: #C9A84C; font-size: 12px; }
+            .divider span { color: ${goldColor}; font-size: 12px; }
             .qr-wrap {
-              background: #FDF6EC;
+              background: ${creamColor};
               border-radius: 12px;
               padding: 16px;
               display: inline-block;
               margin: 16px 0;
-              border: 1px solid #E8D5B7;
+              border: 1px solid ${dividerColor};
             }
             .table-num {
               font-family: 'Playfair Display', serif;
               font-size: 26px;
               font-weight: 700;
-              color: #8B1A1A;
+              color: ${primaryColor};
               margin-top: 8px;
             }
             .table-label {
               font-size: 13px;
-              color: #8C7B6B;
+              color: ${mutedColor};
               font-style: italic;
               margin-top: 2px;
             }
             .scan-msg {
               font-size: 12px;
-              color: #8C7B6B;
+              color: ${mutedColor};
               margin-top: 16px;
               letter-spacing: 0.03em;
             }
@@ -193,7 +204,7 @@ function QRCodeCard({ table, onDelete }) {
             onClick={handleCopyUrl}
             className="flex-1 py-2 text-xs font-semibold rounded-xl transition hover:scale-105 focus-gold"
             style={{
-              background: copied ? '#DCFCE7' : 'var(--color-cream-dark)',
+              background: copied ? 'var(--success-pale)' : 'var(--color-cream-dark)',
               color: copied ? '#166534' : 'var(--color-charcoal)',
               border: '1px solid var(--color-divider)',
             }}
@@ -206,9 +217,9 @@ function QRCodeCard({ table, onDelete }) {
             disabled={deleting}
             aria-label={t('qr.deleteTable')}
             className="w-9 h-9 rounded-xl flex items-center justify-center transition hover:scale-110 focus-gold"
-            style={{ background: '#FEE2E2', color: '#DC2626' }}
+            style={{ background: 'var(--danger-pale)', color: 'var(--danger)' }}
           >
-            {deleting ? <span className="spinner" style={{ width: '14px', height: '14px', borderColor: '#DC2626', borderTopColor: 'transparent' }} /> : '🗑'}
+            {deleting ? <span className="spinner" style={{ width: '14px', height: '14px', borderColor: 'var(--danger)', borderTopColor: 'transparent' }} /> : '🗑'}
           </button>
         </div>
       </div>
@@ -230,7 +241,7 @@ function QRCodeCard({ table, onDelete }) {
               <button
                 onClick={handleDelete}
                 className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white transition hover:opacity-90"
-                style={{ background: '#DC2626' }}
+                style={{ background: 'var(--danger)' }}
               >
                 {t('qr.yesDelete')}
               </button>

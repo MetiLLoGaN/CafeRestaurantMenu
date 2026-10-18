@@ -47,7 +47,7 @@ function Navbar({ children, title }) {
         <header
           className="sticky top-0 z-20 flex items-center justify-between px-6 py-3.5"
           style={{
-            background: 'rgba(253,246,236,0.92)',
+            background: 'var(--header-bg)',
             backdropFilter: 'blur(8px)',
             borderBottom: '1px solid var(--color-divider)',
             boxShadow: 'var(--shadow-sm)',
