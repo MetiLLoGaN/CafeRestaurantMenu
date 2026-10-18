@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { useTranslation } from 'react-i18next';
+import resolveImageUrl from '../utils/resolveImageUrl';
 
 const formatPrice = (price) =>
   new Intl.NumberFormat('en-UG', {
@@ -16,6 +17,7 @@ function MenuItemCard({ item, index = 0 }) {
   const quantity = cartItem?.quantity || 0;
   const [adding, setAdding] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
+  const [imgFailed, setImgFailed] = useState(false);
 
   const handleAdd = () => {
     if (!item.isAvailable) return;
@@ -50,12 +52,13 @@ function MenuItemCard({ item, index = 0 }) {
           onClick={() => setShowDetail(true)}
           style={{ cursor: 'pointer', height: '190px', backgroundColor: 'var(--color-cream-dark)' }}
         >
-          {item.image ? (
+          {item.image && !imgFailed ? (
             <img
-              src={item.image}
+              src={resolveImageUrl(item.image)}
               alt={item.name}
               className="w-full h-full object-cover"
               loading="lazy"
+              onError={() => setImgFailed(true)}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
@@ -218,12 +221,13 @@ function MenuItemCard({ item, index = 0 }) {
             style={{ maxWidth: '480px' }}
           >
             {/* Image */}
-            {item.image && (
+            {item.image && !imgFailed && (
               <div style={{ height: '240px', overflow: 'hidden', borderRadius: '20px 20px 0 0' }}>
                 <img
-                  src={item.image}
+                  src={resolveImageUrl(item.image)}
                   alt={item.name}
                   className="w-full h-full object-cover"
+                  onError={() => setImgFailed(true)}
                 />
               </div>
             )}

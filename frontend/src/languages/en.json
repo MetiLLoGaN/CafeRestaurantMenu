@@ -244,6 +244,15 @@
     "selectCategory": "Select category",
     "prepTime": "Prep Time (min)",
     "markPopular": "Mark as Popular",
+    "image": "Image",
+    "uploadImage": "Upload Image",
+    "replaceImage": "Replace Image",
+    "removeImage": "Remove Image",
+    "imageHint": "JPEG, PNG, WebP or GIF · up to 5 MB",
+    "imagePreviewAlt": "Selected image preview",
+    "imageInvalid": "Please select a JPEG, PNG, WebP or GIF image up to 5 MB.",
+    "imageWillBeRemoved": "The current image will be removed when you save.",
+    "saveFailed": "Failed to save the menu item. Please try again.",
     "deleteConfirm": "Delete this item?"
   },
   "tables": {

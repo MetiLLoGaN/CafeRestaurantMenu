@@ -22,6 +22,9 @@ node_modules/
 !**/.env.example
 !**/.env.*.example
 
+# Uploaded menu images
+/backend/uploads/
+
 # Logs
 *.log
 npm-debug.log*

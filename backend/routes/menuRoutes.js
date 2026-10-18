@@ -10,9 +10,12 @@ const {
   createMenuItem,
   updateMenuItem,
   deleteMenuItem,
-  toggleAvailability
+  toggleAvailability,
+  uploadMenuItemImage,
+  removeMenuItemImage
 } = require('../controllers/menuController');
 const auth = require('../middleware/authMiddleware');
+const { upload, handleUploadError } = require('../middleware/imageUpload');
 
 router.get('/public', getPublicMenu);
 
@@ -31,6 +34,9 @@ router.route('/items')
 router.route('/items/:id')
   .put(auth, updateMenuItem)
   .delete(auth, deleteMenuItem);
+
+router.post('/items/:id/image', auth, upload.single('image'), handleUploadError, uploadMenuItemImage);
+router.delete('/items/:id/image', auth, removeMenuItemImage);
 
 router.patch('/items/:id/toggle', auth, toggleAvailability);
 

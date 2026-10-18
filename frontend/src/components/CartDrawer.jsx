@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import api from '../api/axios';
+import resolveImageUrl from '../utils/resolveImageUrl';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -24,6 +25,7 @@ function CartDrawer() {
   } = useCart();
 
   const [customerNote, setCustomerNote]   = useState('');
+  const [failedImages, setFailedImages]   = useState({});
   const [loading, setLoading]             = useState(false);
   const [placing, setPlacing]             = useState(false); // overlay animation
   const [error, setError]                 = useState('');
@@ -140,11 +142,12 @@ function CartDrawer() {
               }}
             >
               {/* Thumbnail */}
-              {item.image ? (
+              {item.image && !failedImages[item._id] ? (
                 <img
-                  src={item.image}
+                  src={resolveImageUrl(item.image)}
                   alt={item.name}
                   className="w-14 h-14 rounded-xl object-cover flex-shrink-0"
+                  onError={() => setFailedImages(prev => ({ ...prev, [item._id]: true }))}
                 />
               ) : (
                 <div

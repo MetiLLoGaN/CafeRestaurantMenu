@@ -2,7 +2,11 @@ import { useEffect, useState } from 'react';
 import api from '../../api/axios';
 import Navbar from '../../components/Navbar';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import resolveImageUrl from '../../utils/resolveImageUrl';
 import { useTranslation } from 'react-i18next';
+
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB — mirrors the server limit
 
 function MenuManagementPage() {
   const { t } = useTranslation();
@@ -19,6 +23,12 @@ function MenuManagementPage() {
     isPopular: false,
     preparationTime: ''
   });
+
+  /* Image upload state */
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
+  const [removeImage, setRemoveImage] = useState(false);
+  const [saveError, setSaveError] = useState('');
 
   const fetchData = async () => {
     try {
@@ -41,17 +51,38 @@ function MenuManagementPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSaveError('');
     try {
+      /* 1) Save the item fields — image upload happens afterwards so the
+            item exists even if the upload step fails */
+      let savedItem;
       if (editingItem) {
-        await api.put(`/menu/items/${editingItem._id}`, formData);
+        const res = await api.put(`/menu/items/${editingItem._id}`, formData);
+        savedItem = res.data.menuItem;
       } else {
-        await api.post('/menu/items', formData);
+        const res = await api.post('/menu/items', formData);
+        savedItem = res.data.menuItem;
       }
+
+      /* 2) Upload the newly selected image or apply the pending removal */
+      if (savedItem?._id) {
+        if (imageFile) {
+          const imageForm = new FormData();
+          imageForm.append('image', imageFile);
+          await api.post(`/menu/items/${savedItem._id}/image`, imageForm, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          });
+        } else if (editingItem && removeImage) {
+          await api.delete(`/menu/items/${savedItem._id}/image`);
+        }
+      }
+
       fetchData();
       setShowModal(false);
       resetForm();
     } catch (error) {
       console.error('Failed to save item:', error);
+      setSaveError(t('menuManagement.saveFailed'));
     }
   };
 
@@ -74,7 +105,32 @@ function MenuManagementPage() {
     }
   };
 
+  const clearSelectedImage = () => {
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
+    setImageFile(null);
+    setImagePreview('');
+  };
+
+  const handleImageSelect = (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = ''; // allow re-selecting the same file
+    if (!file) return;
+
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type) || file.size > MAX_IMAGE_SIZE) {
+      window.alert(t('menuManagement.imageInvalid'));
+      return;
+    }
+
+    clearSelectedImage();
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+    setRemoveImage(false);
+  };
+
   const openEdit = (item) => {
+    clearSelectedImage();
+    setRemoveImage(false);
+    setSaveError('');
     setEditingItem(item);
     setFormData({
       name: item.name,
@@ -97,6 +153,9 @@ function MenuManagementPage() {
       isPopular: false,
       preparationTime: ''
     });
+    clearSelectedImage();
+    setRemoveImage(false);
+    setSaveError('');
   };
 
   const formatPrice = (price) => {
@@ -141,7 +200,12 @@ function MenuManagementPage() {
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
                     {item.image && (
-                      <img src={item.image} alt={item.name} className="w-12 h-12 rounded object-cover" />
+                      <img
+                        src={resolveImageUrl(item.image)}
+                        alt={item.name}
+                        className="w-12 h-12 rounded object-cover"
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                      />
                     )}
                     <div>
                       <p className="font-medium">{item.name}</p>
@@ -231,6 +295,67 @@ function MenuManagementPage() {
                   className="w-full border rounded-lg p-2"
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">{t('menuManagement.image')}</label>
+
+                {/* Current stored image */}
+                {editingItem?.image && !removeImage && !imagePreview && (
+                  <img
+                    src={resolveImageUrl(editingItem.image)}
+                    alt={editingItem.name}
+                    className="w-24 h-24 rounded-lg object-cover border mb-2"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  />
+                )}
+
+                {/* Preview of the newly selected file */}
+                {imagePreview && (
+                  <img
+                    src={imagePreview}
+                    alt={t('menuManagement.imagePreviewAlt')}
+                    className="w-24 h-24 rounded-lg object-cover border mb-2"
+                  />
+                )}
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <label className="cursor-pointer px-3 py-2 rounded-lg border text-sm bg-white">
+                    {editingItem?.image && !removeImage && !imagePreview
+                      ? t('menuManagement.replaceImage')
+                      : t('menuManagement.uploadImage')}
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      className="hidden"
+                      onChange={handleImageSelect}
+                    />
+                  </label>
+
+                  {editingItem?.image && !removeImage && !imagePreview && (
+                    <button
+                      type="button"
+                      onClick={() => setRemoveImage(true)}
+                      className="px-3 py-2 rounded-lg border text-sm text-red-500 bg-white"
+                    >
+                      {t('menuManagement.removeImage')}
+                    </button>
+                  )}
+
+                  {imagePreview && (
+                    <button
+                      type="button"
+                      onClick={clearSelectedImage}
+                      className="px-3 py-2 rounded-lg border text-sm bg-white"
+                    >
+                      {t('common.cancel')}
+                    </button>
+                  )}
+                </div>
+
+                <p className="text-xs text-gray-500 mt-1">{t('menuManagement.imageHint')}</p>
+                {removeImage && !imagePreview && (
+                  <p className="text-xs text-red-500 mt-1">{t('menuManagement.imageWillBeRemoved')}</p>
+                )}
+              </div>
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
@@ -240,6 +365,9 @@ function MenuManagementPage() {
                 />
                 <label htmlFor="isPopular">{t('menuManagement.markPopular')}</label>
               </div>
+              {saveError && (
+                <p className="text-sm text-red-500">{saveError}</p>
+              )}
               <div className="flex gap-2">
                 <button type="submit" className="flex-1 bg-primary text-white py-2 rounded-lg">
                   {t('common.save')}

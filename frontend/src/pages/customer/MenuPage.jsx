@@ -7,6 +7,7 @@ import MenuItemCard from '../../components/MenuItemCard';
 import CategoryTabs from '../../components/CategoryTabs';
 import CartDrawer from '../../components/CartDrawer';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import resolveImageUrl from '../../utils/resolveImageUrl';
 
 /* ── Skeleton card ─────────────────────────────────────────────── */
 function SkeletonCard() {
@@ -85,10 +86,11 @@ function FeaturedCarousel({ items }) {
         {/* Background image */}
         {item.image && (
           <img
-            src={item.image}
+            src={resolveImageUrl(item.image)}
             alt={item.name}
             className="absolute inset-0 w-full h-full object-cover"
             style={{ opacity: 0.35 }}
+            onError={(e) => { e.currentTarget.style.display = 'none'; }}
           />
         )}
 

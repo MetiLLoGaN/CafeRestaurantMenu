@@ -244,6 +244,15 @@
     "selectCategory": "دسته‌بندی را انتخاب کنید",
     "prepTime": "زمان آماده‌سازی (دقیقه)",
     "markPopular": "علامت‌گذاری به‌عنوان محبوب",
+    "image": "تصویر",
+    "uploadImage": "بارگذاری تصویر",
+    "replaceImage": "جایگزینی تصویر",
+    "removeImage": "حذف تصویر",
+    "imageHint": "JPEG، PNG، WebP یا GIF · حداکثر ۵ مگابایت",
+    "imagePreviewAlt": "پیش‌نمایش تصویر انتخاب‌شده",
+    "imageInvalid": "لطفاً یک تصویر JPEG، PNG، WebP یا GIF حداکثر ۵ مگابایت انتخاب کنید.",
+    "imageWillBeRemoved": "تصویر فعلی هنگام ذخیره حذف خواهد شد.",
+    "saveFailed": "ذخیره آیتم منو انجام نشد. لطفاً دوباره تلاش کنید.",
     "deleteConfirm": "این آیتم حذف شود؟"
   },
   "tables": {

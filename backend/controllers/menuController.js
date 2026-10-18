@@ -1,5 +1,6 @@
 const Category = require('../models/Category');
 const MenuItem = require('../models/MenuItem');
+const { removeLocalImage } = require('../middleware/imageUpload');
 
 const getCategories = async (req, res) => {
   try {
@@ -180,6 +181,11 @@ const updateMenuItem = async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to update this menu item' });
     }
 
+    /* If the image URL is being changed, clean up the replaced local file */
+    if (image !== undefined && image !== menuItem.image) {
+      removeLocalImage(menuItem.image);
+    }
+
     menuItem = await MenuItem.findByIdAndUpdate(id, {
       name,
       description,
@@ -191,6 +197,68 @@ const updateMenuItem = async (req, res) => {
       preparationTime,
       allergens
     }, { new: true, runValidators: true }).populate('category', 'name');
+
+    res.status(200).json({
+      success: true,
+      menuItem
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+const uploadMenuItemImage = async (req, res) => {
+  try {
+    const menuItem = await MenuItem.findById(req.params.id);
+
+    if (!menuItem) {
+      return res.status(404).json({ message: 'Menu item not found' });
+    }
+
+    if (menuItem.owner.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to update this menu item' });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ message: 'Please provide an image file' });
+    }
+
+    /* Store only the path in the database — the file lives in /uploads */
+    const newImage = `/uploads/${req.file.filename}`;
+
+    /* Replacing: clean up the previously stored local file */
+    if (menuItem.image && menuItem.image !== newImage) {
+      removeLocalImage(menuItem.image);
+    }
+
+    menuItem.image = newImage;
+    await menuItem.save();
+
+    res.status(200).json({
+      success: true,
+      menuItem
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+const removeMenuItemImage = async (req, res) => {
+  try {
+    const menuItem = await MenuItem.findById(req.params.id);
+
+    if (!menuItem) {
+      return res.status(404).json({ message: 'Menu item not found' });
+    }
+
+    if (menuItem.owner.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to update this menu item' });
+    }
+
+    removeLocalImage(menuItem.image);
+
+    menuItem.image = '';
+    await menuItem.save();
 
     res.status(200).json({
       success: true,
@@ -214,6 +282,9 @@ const deleteMenuItem = async (req, res) => {
     if (menuItem.owner.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Not authorized to delete this menu item' });
     }
+
+    /* Clean up the locally stored image, if any */
+    removeLocalImage(menuItem.image);
 
     await MenuItem.findByIdAndDelete(id);
 
@@ -262,5 +333,7 @@ module.exports = {
   createMenuItem,
   updateMenuItem,
   deleteMenuItem,
-  toggleAvailability
+  toggleAvailability,
+  uploadMenuItemImage,
+  removeMenuItemImage
 };
