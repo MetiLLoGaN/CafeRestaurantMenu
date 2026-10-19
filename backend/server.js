@@ -9,6 +9,7 @@ const menuRoutes = require('./routes/menuRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const tableRoutes = require('./routes/tableRoutes');
 const brandingRoutes = require('./routes/brandingRoutes');
+const superAdminRoutes = require('./routes/superAdminRoutes');
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use('/api/menu', menuRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/tables', tableRoutes);
 app.use('/api/branding', brandingRoutes);
+app.use('/api/super-admin', superAdminRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'QR Menu System API is running' });

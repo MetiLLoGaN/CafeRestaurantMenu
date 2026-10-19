@@ -62,40 +62,19 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(false);
   };
 
-  const register = async (name, email, password, restaurantName) => {
-    try {
-      const response = await api.post("/auth/register", {
-        name,
-        email,
-        password,
-        restaurantName,
-      });
-      const { token: authToken, user: userData } = response.data;
-
-      localStorage.setItem("token", authToken);
-      localStorage.setItem("user", JSON.stringify(userData));
-
-      setToken(authToken);
-      setUser(userData);
-      setIsAuthenticated(true);
-
-      return { success: true };
-    } catch (error) {
-      return {
-        success: false,
-        message: error.response?.data?.message || "Registration failed",
-      };
-    }
-  };
+  /* NOTE: public self-registration has been removed. Accounts are
+     created by the Super Admin through the protected super-admin
+     dashboard (or the offline provisioning script for the very first
+     super admin). */
 
   const value = {
     user,
     token,
     loading,
     isAuthenticated,
+    isSuperAdmin: user?.role === "super_admin",
     login,
     logout,
-    register,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

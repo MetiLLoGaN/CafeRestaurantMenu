@@ -21,7 +21,7 @@ const C = {
 
 function LoginPage() {
   const navigate = useNavigate();
-  const { login, isAuthenticated, loading: authLoading } = useAuth();
+  const { login, isAuthenticated, loading: authLoading, user } = useAuth();
   const { t } = useTranslation();
 
   const [email, setEmail] = useState("");
@@ -33,9 +33,11 @@ function LoginPage() {
 
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
-      navigate("/admin/dashboard", { replace: true });
+      /* Super admins land on the platform dashboard; restaurant
+         admins keep their existing flow. */
+      navigate(user?.role === "super_admin" ? "/super-admin" : "/admin/dashboard", { replace: true });
     }
-  }, [authLoading, isAuthenticated, navigate]);
+  }, [authLoading, isAuthenticated, user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -94,7 +96,7 @@ function LoginPage() {
               alignItems: "center",
               justifyContent: "center",
               margin: "0 auto 20px",
-              boxShadow: "0 8px 28px rgba(194,80,31,0.35)",
+              boxShadow: "0 8px 28px rgba(36, 74, 87,0.35)",
               animation: "bounceIn 0.6s ease both",
             }}>
             {/* SVG fork and spoon crossed — exactly as in design */}
@@ -150,7 +152,7 @@ function LoginPage() {
             borderRadius: "24px",
             padding: "32px 28px 28px",
             width: "100%",
-            boxShadow: "0 4px 40px rgba(92,40,14,0.10)",
+            boxShadow: "0 4px 40px rgba(36, 74, 87,0.35)",
           }}>
           {/* Card heading */}
           <h2
@@ -462,7 +464,7 @@ function LoginPage() {
                 alignItems: "center",
                 justifyContent: "center",
                 gap: "12px",
-                boxShadow: "0 6px 24px rgba(194,80,31,0.40)",
+                boxShadow: "0 5px 12px rgba(36, 74, 87,0.35)",
                 transition: "background 0.2s ease, transform 0.15s ease",
                 transform: loading ? "scale(0.98)" : "scale(1)",
                 fontFamily: "inherit",
@@ -524,7 +526,7 @@ function LoginPage() {
               {t("login.newToSystem")}
             </p>
             <Link
-              to="/admin/register"
+              to="/restaurant-inquiry"
               style={{
                 background: "none",
                 border: "none",

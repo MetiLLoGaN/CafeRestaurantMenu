@@ -120,16 +120,16 @@
     }
   },
   "login": {
-    "subtitle": "Restaurant Management Admin",
+    "subtitle": "Restaurant & Coffee Shop Management Admin",
     "welcomeBack": "Welcome Back",
-    "welcomeDesc": "Manage your restaurant operations with precision.",
+    "welcomeDesc": "Manage your business operations with precision.",
     "ownerEmail": "Owner Email",
     "emailPlaceholder": "owner@yourrestaurant.com",
     "secureKey": "Secure Key",
     "forgotAccess": "Forgot Access?",
     "staySignedIn": "Stay signed in for 30 days",
     "enteringDashboard": "Entering Dashboard",
-    "newToSystem": "New to the system?",
+    "newToSystem": "Want a digital QR menu panel for your restaurant?",
     "registerRestaurant": "Register your Restaurant",
     "errors": {
       "enterEmail": "Please enter your email address.",
@@ -349,6 +349,106 @@
     "yesDelete": "Yes, Delete",
     "printTitle": "Table {{number}} QR Code",
     "scanMsg": "📱 Scan with your phone camera to view the menu"
+  },
+  "inquiry": {
+    "brandSubtitle": "Digital menu & restaurant admin panel",
+    "navLogin": "Restaurant login",
+    "badge": "Dedicated QR Menu",
+    "headline": "Your restaurant's digital menu, more professional than ever",
+    "subtitle": "Invite your customers to a fast, modern and effortless experience with a dedicated QR menu. Manage your menu, update photos and prices, and give your cafe or restaurant its own visual identity.",
+    "cta": "Request your dedicated panel",
+    "explore": "Explore features",
+    "benefitsTitle": "Everything your restaurant needs",
+    "benefits": {
+      "benefitQr": "A dedicated digital menu with QR Code",
+      "benefitManage": "Easy management of items, categories, prices and photos",
+      "benefitPanel": "A dedicated admin panel for your cafe or restaurant",
+      "benefitBranding": "Logo and colors matched to your restaurant's brand",
+      "benefitMobile": "A great mobile user experience",
+      "benefitBilingual": "Persian and English language support"
+    },
+    "stepsTitle": "How to get started",
+    "steps": {
+      "stepContact": "Contact our team by phone.",
+      "stepRequest": "Request your digital menu and dedicated admin panel.",
+      "stepSetup": "Once your request is reviewed and coordinated, your restaurant admin account will be created."
+    },
+    "contactTitle": "Contact us",
+    "contactText": "For more information and to request setup of your restaurant's digital menu, get in touch with us.",
+    "copyPhone": "Copy number",
+    "copied": "✓ Copied",
+    "phonePending": "Official phone number coming soon [OFFICIAL NUMBER PENDING]",
+    "backToLogin": "Back to restaurant login"
+  },
+  "superAdmin": {
+    "title": "Super Admin",
+    "subtitle": "Platform-level management",
+    "nav": {
+      "dashboard": "Dashboard",
+      "users": "Users",
+      "createUser": "Create User"
+    },
+    "roles": {
+      "super_admin": "Super Admin",
+      "restaurant_admin": "Restaurant Admin"
+    },
+    "dashboard": {
+      "title": "Platform Dashboard",
+      "subtitle": "Overview of accounts and restaurants",
+      "totalUsers": "Total user accounts",
+      "totalRestaurants": "Restaurant accounts",
+      "totalSuperAdmins": "Super admins",
+      "activeUsers": "Active accounts",
+      "disabledUsers": "Disabled accounts",
+      "manageUsers": "Manage users",
+      "loadError": "Could not load statistics."
+    },
+    "users": {
+      "title": "User Management",
+      "subtitle": "Search, create and edit platform accounts",
+      "searchPlaceholder": "Search by name or email…",
+      "roleFilter": "Filter by role",
+      "statusFilter": "Filter by status",
+      "allRoles": "All roles",
+      "allStatuses": "All statuses",
+      "totalCount": "{{count}} users",
+      "email": "Email",
+      "restaurant": "Restaurant",
+      "role": "Role",
+      "status": "Status",
+      "empty": "No users found",
+      "loadError": "Could not load users.",
+      "editTitle": "Edit User",
+      "updated": "User updated.",
+      "updateError": "Could not update the user.",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "statusUpdated": "Account status updated.",
+      "resetPassword": "Reset Password",
+      "resetTitle": "Reset Password",
+      "resetHint": "Set a new password for {{name}}.",
+      "resetConfirm": "Set new password",
+      "resetError": "Could not reset the password.",
+      "passwordUpdated": "Password updated.",
+      "saving": "Saving…",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "create": {
+      "title": "Create Account",
+      "subtitle": "Create a new restaurant admin or super admin account.",
+      "initialPassword": "Initial Password",
+      "submit": "Create Account",
+      "creating": "Creating…",
+      "errors": {
+        "name": "Please enter a name.",
+        "email": "Please enter a valid email.",
+        "passwordMin": "Password must be at least 6 characters.",
+        "passwordMismatch": "Passwords do not match.",
+        "restaurantName": "Restaurant name is required for a restaurant admin.",
+        "failed": "Account creation failed. Please try again."
+      }
+    }
   },
   "orderSuccess": {
     "title": "Order Placed! 🎉",

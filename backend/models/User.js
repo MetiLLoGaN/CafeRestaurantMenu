@@ -3,6 +3,23 @@ const bcrypt = require('bcryptjs');
 
 const HEX_COLOR = /^#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})$/;
 
+/* ── Roles ──────────────────────────────────────────────────────────
+   super_admin      — platform owner: manages accounts across the
+                      whole platform (provisioned only via the
+                      offline `npm run super-admin` script).
+   restaurant_admin — the ordinary restaurant owner/admin (default);
+                      manages only their own restaurant, exactly as
+                      before this feature existed.
+   The role is ALWAYS read from the database by the auth middleware —
+   it is never taken from the JWT payload or any client-submitted
+   field, so it cannot be escalated through token manipulation or
+   mass assignment.
+──────────────────────────────────────────────────────────────────── */
+const ROLES = {
+  SUPER_ADMIN: 'super_admin',
+  RESTAURANT_ADMIN: 'restaurant_admin',
+};
+
 /* Per-restaurant (per-tenant) branding configuration.
    There is no separate Restaurant collection in this app — the owner User
    document IS the tenant (all menu data references `owner`), so branding
@@ -90,10 +107,33 @@ const userSchema = new mongoose.Schema({
     minlength: 6,
     select: false
   },
+  /* Platform role. Existing documents predate this field and are read
+     through `role || 'restaurant_admin'` fallbacks where it matters,
+     while the schema default applies to every newly created user. */
+  role: {
+    type: String,
+    enum: Object.values(ROLES),
+    default: ROLES.RESTAURANT_ADMIN
+  },
+  /* Required for restaurant tenants (it names the restaurant); the
+     platform-level super admin has no restaurant of their own. */
   restaurantName: {
     type: String,
-    required: [true, 'Please provide a restaurant name'],
-    trim: true
+    trim: true,
+    default: '',
+    required: [
+      function () {
+        return this.role !== ROLES.SUPER_ADMIN;
+      },
+      'Please provide a restaurant name'
+    ]
+  },
+  /* Account status. Legacy documents predate this field — they are
+     treated as active (`isActive !== false`); only an explicit false
+     disables an account. */
+  isActive: {
+    type: Boolean,
+    default: true
   },
   branding: {
     type: brandingSchema,
@@ -107,7 +147,10 @@ const userSchema = new mongoose.Schema({
 
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) {
-    next();
+    /* Must RETURN here: falling through would try to hash an
+       undefined password on every unrelated save (branding updates,
+       super-admin edits of existing users, …). */
+    return next();
   }
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
@@ -124,4 +167,7 @@ userSchema.methods.getSignedJwtToken = function() {
   });
 };
 
-module.exports = mongoose.model('User', userSchema);
+const User = mongoose.model('User', userSchema);
+User.ROLES = ROLES;
+
+module.exports = User;

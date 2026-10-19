@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { register, login, getMe } = require('../controllers/authController');
+const { registrationDisabled, login, getMe } = require('../controllers/authController');
 const auth = require('../middleware/authMiddleware');
 
-router.post('/register', register);
+/* Public self-registration is disabled — see authController. */
+router.post('/register', registrationDisabled);
 router.post('/login', login);
 router.get('/me', auth, getMe);
 
