@@ -4,6 +4,16 @@ const User = require('../models/User');
 const { removeLocalImage } = require('../middleware/imageUpload');
 const { getEffectiveBranding } = require('../utils/branding');
 
+/* Prices are Iranian Toman amounts (application convention 'IRT').
+   Accept only numbers or non-empty numeric strings; reject booleans,
+   objects, arrays, NaN, Infinity and negatives. */
+const parseTomanPrice = (value) => {
+  if (typeof value === 'boolean' || value === null || typeof value === 'object') return null;
+  if (typeof value === 'string' && value.trim() === '') return null;
+  const num = Number(value);
+  return Number.isFinite(num) && num >= 0 ? num : null;
+};
+
 const getCategories = async (req, res) => {
   try {
     const categories = await Category.find({ owner: req.user.id, isActive: true }).sort({ name: 1 });
@@ -147,14 +157,22 @@ const createMenuItem = async (req, res) => {
   try {
     const { name, description, price, category, image, isPopular, preparationTime, allergens } = req.body;
 
-    if (!name || !description || !price || !category) {
+    if (!name || !description || price === undefined || !category) {
       return res.status(400).json({ message: 'Please provide all required fields' });
+    }
+
+    /* Prices are stored and processed as numeric Iranian Toman amounts
+       (application convention — see README "Currency Convention").
+       Reject anything that is not a finite, non-negative number. */
+    const priceToman = parseTomanPrice(price);
+    if (priceToman === null) {
+      return res.status(400).json({ message: 'Price must be a non-negative number in Toman' });
     }
 
     const menuItem = await MenuItem.create({
       name,
       description,
-      price,
+      price: priceToman,
       category,
       image,
       owner: req.user.id,
@@ -189,6 +207,14 @@ const updateMenuItem = async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to update this menu item' });
     }
 
+    /* Validate a price update when provided: must stay a finite,
+       non-negative Toman amount (no Rial/Toman conversion anywhere). */
+    if (price !== undefined) {
+      if (parseTomanPrice(price) === null) {
+        return res.status(400).json({ message: 'Price must be a non-negative number in Toman' });
+      }
+    }
+
     /* If the image URL is being changed, clean up the replaced local file */
     if (image !== undefined && image !== menuItem.image) {
       removeLocalImage(menuItem.image);
@@ -197,7 +223,7 @@ const updateMenuItem = async (req, res) => {
     menuItem = await MenuItem.findByIdAndUpdate(id, {
       name,
       description,
-      price,
+      price: price !== undefined ? Number(price) : price,
       category,
       image,
       isAvailable,

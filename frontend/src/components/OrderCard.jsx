@@ -1,13 +1,7 @@
 import { useState } from 'react';
 import api from '../api/axios';
 import { useTranslation } from 'react-i18next';
-
-const formatPrice = (price) =>
-  new Intl.NumberFormat('en-UG', {
-    style: 'currency',
-    currency: 'UGX',
-    minimumFractionDigits: 0,
-  }).format(price);
+import { useFormatPrice } from '../utils/currency';
 
 const getTimeAgo = (date, t) => {
   const secs = Math.floor((Date.now() - new Date(date)) / 1000);
@@ -27,6 +21,7 @@ const STATUS_META = {
 
 function OrderCard({ order, onUpdate }) {
   const { t } = useTranslation();
+  const formatPrice = useFormatPrice();
   const [status, setStatus]     = useState(order.status);
   const [updating, setUpdating] = useState(false);
 

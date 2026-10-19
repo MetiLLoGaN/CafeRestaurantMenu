@@ -9,6 +9,7 @@ import CategoryTabs from '../../components/CategoryTabs';
 import CartDrawer from '../../components/CartDrawer';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import resolveImageUrl from '../../utils/resolveImageUrl';
+import { useFormatPrice } from '../../utils/currency';
 
 /* ── Skeleton card ─────────────────────────────────────────────── */
 function SkeletonCard() {
@@ -40,6 +41,7 @@ function GoldDivider() {
 /* ── Featured carousel ─────────────────────────────────────────── */
 function FeaturedCarousel({ items }) {
   const { t } = useTranslation();
+  const formatPrice = useFormatPrice();
   const [current, setCurrent] = useState(0);
   const timerRef = useRef(null);
 
@@ -62,11 +64,6 @@ function FeaturedCarousel({ items }) {
   const item     = items[current];
   const cartItem = cartItems.find((ci) => ci._id === item._id);
   const qty      = cartItem?.quantity || 0;
-
-  const formatPrice = (p) =>
-    new Intl.NumberFormat('en-UG', {
-      style: 'currency', currency: 'UGX', minimumFractionDigits: 0,
-    }).format(p);
 
   const goTo = (idx) => {
     setCurrent(idx);
@@ -357,7 +354,7 @@ function MenuPage() {
         className="relative overflow-hidden px-5 py-12 sm:py-16 hero-texture"
         style={{
           background:
-            'linear-gradient(145deg, var(--color-espresso) 0%, var(--color-primary-dark) 50%, var(--color-primary) 100%)',
+            'white',
         }}
       >
         {/* Decorative circles */}

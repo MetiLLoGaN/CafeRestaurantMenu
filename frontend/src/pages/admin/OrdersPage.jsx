@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import api from '../../api/axios';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { useTranslation } from 'react-i18next';
+import { useFormatPrice } from '../../utils/currency';
 
 /* Web Audio chime — no audio file needed */
 function playChime() {
@@ -68,6 +69,7 @@ function Notification({ message, onClose, tableNumber }) {
 /* Individual Order Card */
 function OrderCard({ order, onUpdate, kitchenOnline }) {
   const { t } = useTranslation();
+  const formatPrice = useFormatPrice();
   const [actionLoading, setActionLoading] = useState(false);
 
   const getStatusInfo = (status) => {
@@ -172,7 +174,7 @@ function OrderCard({ order, onUpdate, kitchenOnline }) {
         <div>
           <p className="text-xs" style={{ color: 'var(--color-muted)' }}>{t('common.total')}</p>
           <p className="text-lg font-black" style={{ color: '#EA4A0A' }}>
-            UGX {order.totalPrice?.toLocaleString() || '0'}
+            {formatPrice(order.totalAmount ?? order.totalPrice)}
           </p>
         </div>
       </div>

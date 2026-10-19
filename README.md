@@ -168,6 +168,15 @@ Uploads (menu images and logos) are stored on the **local disk** under `backend/
 - In production, terminate TLS and point `REACT_APP_API_URL` at the API origin so `/uploads/…` URLs resolve correctly; consider an nginx `location /uploads` alias with long-lived cache headers.
 - `backend/utils/cloudinary.js` and `backend/middleware/uploadMiddleware.js` remain available if you prefer Cloudinary for media storage.
 
+## Currency Convention (Iranian Toman)
+
+All monetary amounts throughout the application are denominated and displayed in **Iranian Toman (تومان)**:
+
+- `IRT` is used as the application-specific currency identifier when a code is needed internally. It is a **project convention, not an official ISO 4217 code** (Toman is not an ISO currency; the official Iranian currency is the Rial, `IRR`, and 1 Toman = 10 Rial).
+- Prices are stored in the database as plain numeric values in Toman — no currency label is persisted, and no Rial/Toman conversion (multiply/divide by 10/100) is ever applied, so historical order amounts keep their original meaning.
+- All display formatting is centralized in `frontend/src/utils/currency.js` (`formatPrice(value, language)` / `useFormatPrice()`): Persian interface renders Persian digits with `٬` grouping plus `تومان` (e.g. `۱۵۰٬۰۰۰ تومان`), English renders Latin digits with `,` grouping plus `Toman` (e.g. `150,000 Toman`). Invalid or missing values render `—` instead of a misleading number.
+- Admin price inputs are labeled as Toman (not Rial) and validated server-side: prices must be finite, non-negative numbers (`menuController` rejects anything else; Mongoose enforces `min: 0`).
+
 ## Future Improvements
 
 - Payment integration

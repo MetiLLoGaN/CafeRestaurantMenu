@@ -4,13 +4,7 @@ import api from '../api/axios';
 import resolveImageUrl from '../utils/resolveImageUrl';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-
-const formatPrice = (price) =>
-  new Intl.NumberFormat('en-UG', {
-    style: 'currency',
-    currency: 'UGX',
-    minimumFractionDigits: 0,
-  }).format(price);
+import { useFormatPrice } from '../utils/currency';
 
 function CartDrawer() {
   const {
@@ -31,6 +25,7 @@ function CartDrawer() {
   const [error, setError]                 = useState('');
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const formatPrice = useFormatPrice();
 
   const serviceFee   = Math.round(totalPrice * 0.05);
   const grandTotal   = totalPrice + serviceFee;

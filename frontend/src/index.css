@@ -16,61 +16,54 @@
 ═══════════════════════════════════════════════════════════════════ */
 :root {
   /* ── Brand palette ─────────────────────────────────────────── */
-  --primary: #8b1a1a; /* deep burgundy — CTA, active states       */
-  --primary-hover: #a82020; /* slightly lighter on hover                */
-  --primary-dark: #5c0e0e; /* pressed / dark gradient end              */
-  --primary-pale: #fbeaea; /* very light tint for backgrounds          */
+  --primary: #6b855e; /* sage green — CTA, active states */
+  --primary-hover: #5b6f4f; /* darker sage on hover */
+  --primary-dark: #40513a; /* pressed / dark gradient end */
+  --primary-pale: #e9eee5; /* light sage tint for backgrounds */
 
-  --gold: #c9a84c; /* aged gold — accents, borders, icons      */
-  --gold-light: #e8c97a; /* shimmer highlights                        */
-  --gold-dark: #9a7a2e; /* darker for text on light backgrounds     */
-  --gold-pale: #fbf3dc; /* lightest gold tint                        */
-
-  --secondary: #c9a84c; /* secondary brand color (structural gold)   */
-  --accent: #c9a84c; /* accent highlights, rings, tints         */
+  --gold: #a67c52; /* warm natural wood — accents, borders, icons */
+  --gold-light: #d6b895; /* soft sand-beige highlights */
+  --gold-dark: #8f6a43; /* darker wood for text on light backgrounds */
+  --gold-pale: #f5ede3; /* lightest warm wood tint */
 
   /* ── Neutral warm palette ──────────────────────────────────── */
-  --cream: #fdf6ec; /* page background                           */
-  --cream-mid: #f5e6d0; /* card backgrounds, inputs                  */
-  --cream-deep: #edd9b8; /* dividers, skeleton base                   */
-  --cream-deeper: #e0c89a; /* skeleton highlight, active states         */
+  --cream: #f7f3ed; /* page background */
+  --cream-mid: #eee6dc; /* card backgrounds, inputs */
+  --cream-deep: #e2d7c8; /* dividers, skeleton base */
+  --cream-deeper: #d6c9b8; /* skeleton highlight, active states */
 
-  --espresso: #2c1a0e; /* primary text — very dark warm brown       */
-  --charcoal: #3d2b1f; /* body text                                 */
-  --muted: #8c7b6b; /* secondary text, placeholders              */
-  --divider: #e8d5b7; /* borders, lines                            */
+  --espresso: #2f2a24; /* primary text — dark charcoal brown */
+  --charcoal: #6b645b; /* body text */
+  --muted: #8f8982; /* secondary text, placeholders */
+  --divider: #d6c9b8; /* borders, lines */
   --white: #ffffff;
 
   /* ── Semantic colors ───────────────────────────────────────── */
-  --success: #16a34a;
-  --success-pale: #dcfce7;
-  --warning: #d97706;
-  --warning-pale: #fef3c7;
-  --danger: #dc2626;
-  --danger-pale: #fee2e2;
-  --info: #2563eb;
-  --info-pale: #dbeafe;
+  --success: #6b855e;
+  --success-pale: #e9eee5;
+  --warning: #d4a152;
+  --warning-pale: #f8eedc;
+  --danger: #b3544a;
+  --danger-pale: #f5e7e3;
+  --info: #4f6d8a;
+  --info-pale: #e7edf2;
 
   /* ── Admin sidebar ─────────────────────────────────────────── */
-  --sidebar-bg: #1a0a04;
-  --sidebar-link: rgba(253, 246, 236, 0.55);
-  --sidebar-hover-bg: rgba(201, 168, 76, 0.1);
-  --sidebar-active-bg: rgba(201, 168, 76, 0.18);
-  --sidebar-border: rgba(201, 168, 76, 0.2);
-  --sidebar-border-strong: rgba(201, 168, 76, 0.4);
-  --sidebar-muted: rgba(253, 246, 236, 0.45);
+  --sidebar-bg: #1f1e1d;
+  --sidebar-link: rgba(231, 226, 220, 0.65);
+  --sidebar-hover-bg: rgba(107, 133, 94, 0.14);
+  --sidebar-active-bg: rgba(107, 133, 94, 0.26);
+  --sidebar-border: rgba(167, 162, 154, 0.2);
 
   /* ── Shadows ───────────────────────────────────────────────── */
-  --shadow-xs: 0 1px 4px rgba(44, 26, 14, 0.07);
-  --shadow-sm: 0 2px 10px rgba(44, 26, 14, 0.09);
-  --shadow-md: 0 4px 20px rgba(44, 26, 14, 0.13);
-  --shadow-lg: 0 8px 36px rgba(44, 26, 14, 0.18);
-  --shadow-xl: 0 16px 56px rgba(44, 26, 14, 0.24);
-  --shadow-gold: 0 4px 24px rgba(201, 168, 76, 0.28);
-  --shadow-gold-hover: 0 12px 48px rgba(201, 168, 76, 0.35);
-  --shadow-float: 0 12px 32px rgba(44, 26, 14, 0.18);
+  --shadow-xs: 0 1px 4px rgba(47, 42, 36, 0.07);
+  --shadow-sm: 0 2px 10px rgba(47, 42, 36, 0.09);
+  --shadow-md: 0 4px 20px rgba(47, 42, 36, 0.13);
+  --shadow-lg: 0 8px 36px rgba(47, 42, 36, 0.18);
+  --shadow-xl: 0 16px 56px rgba(47, 42, 36, 0.24);
+  --shadow-gold: 0 4px 24px rgba(166, 124, 82, 0.28);
   --shadow-card:
-    0 2px 12px rgba(44, 26, 14, 0.08), 0 1px 3px rgba(44, 26, 14, 0.05);
+    0 2px 12px rgba(47, 42, 36, 0.08), 0 1px 3px rgba(47, 42, 36, 0.05);
 
   /* ── Typography ────────────────────────────────────────────── */
   --font-display: "Playfair Display", Georgia, "Times New Roman", serif;

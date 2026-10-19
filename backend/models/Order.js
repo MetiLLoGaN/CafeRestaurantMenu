@@ -18,9 +18,11 @@ const orderSchema = new mongoose.Schema({
       type: String,
       required: true
     },
+    /* Price snapshot at order time, in Iranian Toman */
     price: {
       type: Number,
-      required: true
+      required: true,
+      min: 0
     },
     quantity: {
       type: Number,
@@ -28,9 +30,12 @@ const orderSchema = new mongoose.Schema({
       min: 1
     }
   }],
+  /* Order total in Iranian Toman — computed server-side from the
+     stored item prices; historical values are never rewritten. */
   totalAmount: {
     type: Number,
-    required: [true, 'Please provide a total amount']
+    required: [true, 'Please provide a total amount'],
+    min: 0
   },
   status: {
     type: String,

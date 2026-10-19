@@ -11,9 +11,13 @@ const menuItemSchema = new mongoose.Schema({
     required: [true, 'Please provide a description'],
     trim: true
   },
+  /* Monetary value in Iranian Toman (application convention 'IRT' —
+     not an ISO 4217 code). Stored as a plain number; the currency
+     label is a display-only concern in the frontend. */
   price: {
     type: Number,
-    required: [true, 'Please provide a price']
+    required: [true, 'Please provide a price'],
+    min: [0, 'Price cannot be negative']
   },
   image: {
     type: String

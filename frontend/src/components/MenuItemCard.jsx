@@ -2,16 +2,11 @@ import { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { useTranslation } from 'react-i18next';
 import resolveImageUrl from '../utils/resolveImageUrl';
-
-const formatPrice = (price) =>
-  new Intl.NumberFormat('en-UG', {
-    style: 'currency',
-    currency: 'UGX',
-    minimumFractionDigits: 0,
-  }).format(price);
+import { useFormatPrice } from '../utils/currency';
 
 function MenuItemCard({ item, index = 0 }) {
   const { t } = useTranslation();
+  const formatPrice = useFormatPrice();
   const { addItem, updateQuantity, items: cartItems } = useCart();
   const cartItem = cartItems.find((ci) => ci._id === item._id);
   const quantity = cartItem?.quantity || 0;

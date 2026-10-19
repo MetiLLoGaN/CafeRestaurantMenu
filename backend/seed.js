@@ -57,6 +57,9 @@ const seedData = async () => {
     const drinks   = categories.find(c => c.name === 'Drinks');
 
     // Menu items
+    // NOTE: All prices below are plain numeric amounts in Iranian Toman
+    // (application convention 'IRT' — not an ISO 4217 code). Values are
+    // intentionally left as-is; no currency conversion is applied.
     const menuItems = await MenuItem.insertMany([
       {
         name: 'Crispy Plantain Bites',

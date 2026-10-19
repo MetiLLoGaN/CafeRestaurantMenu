@@ -3,14 +3,10 @@ import api from '../../api/axios';
 import Navbar from '../../components/Navbar';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { useTranslation } from 'react-i18next';
-
-const formatPrice = (p) =>
-  new Intl.NumberFormat('en-UG', {
-    style: 'currency', currency: 'UGX', minimumFractionDigits: 0,
-  }).format(p || 0);
+import { useFormatPrice } from '../../utils/currency';
 
 /* Animated count-up number */
-function CountUp({ target, prefix = '', duration = 1200 }) {
+function CountUp({ target, format, duration = 1200 }) {
   const [display, setDisplay] = useState(0);
   const frame = useRef(null);
 
@@ -27,11 +23,11 @@ function CountUp({ target, prefix = '', duration = 1200 }) {
     return () => cancelAnimationFrame(frame.current);
   }, [target, duration]);
 
-  return <>{prefix}{display.toLocaleString()}</>;
+  return <>{format ? format(display) : display.toLocaleString()}</>;
 }
 
 /* Stat card */
-function StatCard({ icon, label, value, prefix = '', accent, index }) {
+function StatCard({ icon, label, value, format, accent, index }) {
   const { t } = useTranslation();
   return (
     <div
@@ -59,7 +55,7 @@ function StatCard({ icon, label, value, prefix = '', accent, index }) {
         className="font-display text-3xl font-bold animate-count-up"
         style={{ color: 'var(--color-espresso)' }}
       >
-        <CountUp target={Number(value) || 0} prefix={prefix} />
+        <CountUp target={Number(value) || 0} format={format} />
       </p>
       <p className="text-sm mt-1" style={{ color: 'var(--color-muted)' }}>
         {label}
@@ -124,6 +120,7 @@ function GoldDivider() {
 
 function DashboardPage() {
   const { t } = useTranslation();
+  const formatPrice = useFormatPrice();
   const [stats, setStats]             = useState(null);
   const [recentOrders, setRecentOrders] = useState([]);
   const [hourlyData, setHourlyData]   = useState([]);
@@ -184,7 +181,7 @@ function DashboardPage() {
       icon: '💰',
       label: t('dashboard.revenueToday'),
       value: stats?.totalRevenueToday || 0,
-      prefix: 'UGX ',
+      format: formatPrice,
       accent: 'var(--color-gold-dark)',
     },
     {

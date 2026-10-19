@@ -4,12 +4,14 @@ import Navbar from '../../components/Navbar';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import resolveImageUrl from '../../utils/resolveImageUrl';
 import { useTranslation } from 'react-i18next';
+import { useFormatPrice } from '../../utils/currency';
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB — mirrors the server limit
 
 function MenuManagementPage() {
   const { t } = useTranslation();
+  const formatPrice = useFormatPrice();
   const [menuItems, setMenuItems] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -158,14 +160,6 @@ function MenuManagementPage() {
     setSaveError('');
   };
 
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('en-UG', {
-      style: 'currency',
-      currency: 'UGX',
-      minimumFractionDigits: 0
-    }).format(price);
-  };
-
   if (loading) {
     return <LoadingSpinner />;
   }
@@ -263,14 +257,18 @@ function MenuManagementPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">{t('menuManagement.priceUgx')}</label>
+                <label className="block text-sm font-medium mb-1">{t('menuManagement.priceToman')}</label>
                 <input
                   type="number"
                   value={formData.price}
                   onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                   required
+                  min="0"
+                  step="1"
+                  inputMode="numeric"
                   className="w-full border rounded-lg p-2"
                 />
+                <p className="text-xs text-gray-500 mt-1">{t('menuManagement.priceHint')}</p>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">{t('common.category')}</label>
