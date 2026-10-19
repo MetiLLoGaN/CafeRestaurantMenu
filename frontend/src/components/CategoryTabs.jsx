@@ -1,31 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-
-const CATEGORY_EMOJIS = {
-  starters:    '🥗',
-  appetizers:  '🥗',
-  mains:       '🍖',
-  'main course':'🍖',
-  desserts:    '🍰',
-  drinks:      '🥤',
-  beverages:   '🥤',
-  pizza:       '🍕',
-  pasta:       '🍝',
-  salads:      '🥙',
-  soups:       '🍲',
-  seafood:     '🦐',
-  grills:      '🔥',
-  burgers:     '🍔',
-  specials:    '⭐',
-};
-
-function getCategoryEmoji(name = '') {
-  const key = name.toLowerCase();
-  for (const [k, v] of Object.entries(CATEGORY_EMOJIS)) {
-    if (key.includes(k)) return v;
-  }
-  return '🍽️';
-}
+import { ChevronLeftIcon, ChevronRightIcon } from './icons';
 
 function CategoryTabs({ categories = [], activeCategory, onCategoryChange }) {
   const { t } = useTranslation();
@@ -74,7 +49,7 @@ function CategoryTabs({ categories = [], activeCategory, onCategoryChange }) {
           color: 'var(--color-espresso)',
         }}
       >
-        ‹
+        <ChevronLeftIcon size={16} />
       </button>
 
       {/* Scrollable rail */}
@@ -110,7 +85,6 @@ function CategoryTabs({ categories = [], activeCategory, onCategoryChange }) {
             fontFamily:  isAll ? 'var(--font-display)' : 'var(--font-body)',
           }}
         >
-          <span>🍽️</span>
           <span>{t('common.all')}</span>
         </button>
 
@@ -118,7 +92,6 @@ function CategoryTabs({ categories = [], activeCategory, onCategoryChange }) {
         {categories.map((cat) => {
           const isActive =
             activeCategory === cat._id || activeCategory === cat.name;
-          const emoji = getCategoryEmoji(cat.name);
 
           return (
             <button
@@ -136,7 +109,6 @@ function CategoryTabs({ categories = [], activeCategory, onCategoryChange }) {
                 fontFamily:  isActive ? 'var(--font-display)' : 'var(--font-body)',
               }}
             >
-              <span>{emoji}</span>
               <span>{cat.name}</span>
             </button>
           );
@@ -154,7 +126,7 @@ function CategoryTabs({ categories = [], activeCategory, onCategoryChange }) {
           color: 'var(--color-espresso)',
         }}
       >
-        ›
+        <ChevronRightIcon size={16} />
       </button>
     </div>
   );

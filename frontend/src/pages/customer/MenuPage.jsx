@@ -8,6 +8,14 @@ import MenuItemCard from '../../components/MenuItemCard';
 import CategoryTabs from '../../components/CategoryTabs';
 import CartDrawer from '../../components/CartDrawer';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import {
+  SearchIcon,
+  XIcon,
+  CartIcon,
+  UtensilsIcon,
+  ArmchairIcon,
+  AlertIcon,
+} from '../../components/icons';
 import resolveImageUrl from '../../utils/resolveImageUrl';
 import { useFormatPrice } from '../../utils/currency';
 
@@ -111,7 +119,7 @@ function FeaturedCarousel({ items }) {
 
           <p
             className="text-xs line-clamp-2 mb-3"
-            style={{ color: 'rgba(253,246,236,0.75)' }}
+            style={{ color: 'var(--color-cream)', opacity: 0.8 }}
           >
             {item.description}
           </p>
@@ -202,6 +210,7 @@ function MenuPage() {
   const [categories, setCategories]   = useState([]);
   const [restaurantName, setRestaurantName] = useState(t('common.digitalMenu'));
   const [restaurantLogo, setRestaurantLogo] = useState('');
+  const [restaurantBranding, setRestaurantBranding] = useState(null);
   const [heroLogoFailed, setHeroLogoFailed] = useState(false);
   const [loading, setLoading]         = useState(true);
   const [error, setError]             = useState(null);
@@ -237,6 +246,7 @@ function MenuPage() {
            unmount / error via restoreBranding(). */
         setRestaurantLogo(data.branding?.logo || '');
         setHeroLogoFailed(false);
+        setRestaurantBranding(data.branding || null);
         previewBranding(data.branding || null);
 
         /* Build unique category list */
@@ -252,6 +262,7 @@ function MenuPage() {
         setCategories(cats);
       } catch (err) {
         setError(t('menu.loadError'));
+        setRestaurantBranding(null);
         restoreBranding();
         console.error(err);
       } finally {
@@ -324,7 +335,9 @@ function MenuPage() {
         style={{ background: 'var(--color-cream)' }}
       >
         <div className="text-center animate-fade-up max-w-sm">
-          <div className="text-5xl mb-4">😕</div>
+          <div className="flex justify-center mb-4" style={{ color: 'var(--color-muted)' }}>
+            <AlertIcon size={44} />
+          </div>
           <h2 className="font-display text-2xl mb-2" style={{ color: 'var(--color-espresso)' }}>
             {t('common.oops')}
           </h2>
@@ -346,15 +359,18 @@ function MenuPage() {
   return (
     <div className="min-h-screen pb-32" style={{ background: 'var(--color-cream)' }}>
 
-      {/* Cart drawer — fixed overlay */}
-      <CartDrawer />
+      {/* Cart drawer — fixed overlay (receives the restaurant branding so
+          the order-success page can keep the same theme) */}
+      <CartDrawer branding={restaurantBranding} />
 
       {/* ── Hero ───────────────────────────────────────────────── */}
       <section
-        className="relative overflow-hidden px-5 py-12 sm:py-16 hero-texture"
+        className="relative overflow-hidden px-5 py-12 sm:py-16"
         style={{
+          /* Fully themed hero: dark primary gradient so the light/gold
+             header text always has a readable, restaurant-specific base */
           background:
-            'white',
+            'linear-gradient(145deg, var(--color-primary-dark) 0%, var(--color-primary) 60%, var(--color-primary-hover) 100%)',
         }}
       >
         {/* Decorative circles */}
@@ -363,8 +379,8 @@ function MenuPage() {
           style={{ background: 'var(--color-gold)' }}
         />
         <div
-          className="absolute -bottom-10 -start-10 w-40 h-40 rounded-full opacity-8"
-          style={{ background: 'var(--color-gold-light)' }}
+          className="absolute -bottom-10 -start-10 w-40 h-40 rounded-full"
+          style={{ background: 'var(--color-gold-light)', opacity: 0.08 }}
         />
 
         <div className="relative mx-auto max-w-xl text-center">
@@ -379,7 +395,8 @@ function MenuPage() {
                 backdropFilter: 'blur(8px)',
               }}
             >
-              🪑 {t('common.table', { number: tableNumber })}
+              <ArmchairIcon size={14} />
+              <span>{t('common.table', { number: tableNumber })}</span>
             </div>
           )}
 
@@ -470,7 +487,7 @@ function MenuPage() {
         <div className="relative max-w-2xl mx-auto">
           {showSearch ? (
             <div className="flex items-center gap-2 animate-fade-down">
-              <span style={{ color: 'var(--color-muted)' }}>🔍</span>
+              <SearchIcon size={16} style={{ color: 'var(--color-muted)', flexShrink: 0 }} />
               <input
                 ref={searchInputRef}
                 type="text"
@@ -491,7 +508,7 @@ function MenuPage() {
                 style={{ color: 'var(--color-muted)' }}
                 aria-label={t('menu.closeSearch')}
               >
-                ✕
+                <XIcon size={16} />
               </button>
             </div>
           ) : (
@@ -551,7 +568,7 @@ function MenuPage() {
             <button
               onClick={() => { setDietaryFilters([]); setSearchTerm(''); setShowSearch(false); }}
               className="px-3 py-1.5 rounded-full text-xs font-medium transition animate-pop-in"
-              style={{ background: '#FEE2E2', color: '#991B1B' }}
+              style={{ background: 'var(--danger-pale)', color: 'var(--danger)' }}
             >
               {t('menu.clear')}
             </button>
@@ -573,7 +590,9 @@ function MenuPage() {
           {/* No results */}
           {!loading && filteredGroups.length === 0 && (
             <div className="text-center py-16 animate-fade-up">
-              <div className="text-5xl mb-3">🍴</div>
+              <div className="flex justify-center mb-3" style={{ color: 'var(--color-muted)' }}>
+                <UtensilsIcon size={44} />
+              </div>
               <p className="font-display text-xl" style={{ color: 'var(--color-espresso)' }}>
                 {t('menu.noResults')}
               </p>
@@ -636,9 +655,9 @@ function MenuPage() {
           onClick={openCart}
           aria-label={t('menu.viewCart', { count: totalItems })}
           className="fixed bottom-6 end-5 z-30 w-16 h-16 rounded-full flex items-center justify-center text-2xl shadow-lg transition hover:scale-110 active:scale-95 animate-bounce-in focus-gold"
-          style={{ background: 'var(--color-primary)', boxShadow: 'var(--shadow-float)' }}
+          style={{ background: 'var(--color-primary)', boxShadow: 'var(--shadow-float)', color: 'var(--color-gold-light)' }}
         >
-          🛒
+          <CartIcon size={26} />
           {/* Count badge */}
           <span
             className="absolute -top-1.5 -end-1.5 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold font-display animate-pop-in"

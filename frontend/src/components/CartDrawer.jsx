@@ -5,8 +5,18 @@ import resolveImageUrl from '../utils/resolveImageUrl';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useFormatPrice } from '../utils/currency';
+import {
+  XIcon,
+  CartIcon,
+  UtensilsIcon,
+  MapPinIcon,
+  MessageIcon,
+  LockIcon,
+  TrashIcon,
+  ChefHatIcon,
+} from './icons';
 
-function CartDrawer() {
+function CartDrawer({ branding = null }) {
   const {
     items,
     isCartOpen,
@@ -54,7 +64,16 @@ function CartDrawer() {
       setTimeout(() => {
         clearCart();
         closeCart();
-        navigate(`/order-success?table=${tableNumber}`);
+        /* Keep owner + table in the URL and hand the restaurant branding
+           to the success page via router state, so the whole ordering
+           flow stays inside this restaurant's theme without refetching. */
+        const query = new URLSearchParams({
+          table: tableNumber || '',
+          owner: ownerId || '',
+        });
+        navigate(`/order-success?${query.toString()}`, {
+          state: { branding },
+        });
       }, 1800);
     } catch (err) {
       setLoading(false);
@@ -88,22 +107,21 @@ function CartDrawer() {
             >
               {t('cart.title')}
             </h2>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--color-muted)' }}>
-              📍 {t('common.table', { number: tableNumber || '--' })}
+            <p className="text-xs mt-0.5 flex items-center gap-1" style={{ color: 'var(--color-muted)' }}>
+              <MapPinIcon size={12} />
+              <span>{t('common.table', { number: tableNumber || '--' })}</span>
             </p>
           </div>
           <button
             onClick={closeCart}
-            aria-label={t('cart.closeCart')}
-            className="w-9 h-9 rounded-full flex items-center justify-center transition hover:scale-110 focus-gold"
-            style={{
-              background: 'var(--color-cream-dark)',
-              color: 'var(--color-charcoal)',
-              fontSize: '18px',
-            }}
-          >
-            ✕
-          </button>
+            aria-label={t('cart.closeCart')}              className="w-9 h-9 rounded-full flex items-center justify-center transition hover:scale-110 focus-gold"
+              style={{
+                background: 'var(--color-cream-dark)',
+                color: 'var(--color-charcoal)',
+              }}
+            >
+              <XIcon size={17} />
+            </button>
         </div>
 
         {/* ── Items list ───────────────────────────────────── */}
@@ -111,7 +129,9 @@ function CartDrawer() {
 
           {items.length === 0 && (
             <div className="text-center py-16 animate-fade-up">
-              <div className="text-5xl mb-3 animate-float">🛒</div>
+              <div className="flex justify-center mb-3 animate-float" style={{ color: 'var(--color-muted)' }}>
+                <CartIcon size={44} />
+              </div>
               <p className="font-display text-lg" style={{ color: 'var(--color-espresso)' }}>
                 {t('cart.emptyTitle')}
               </p>
@@ -146,10 +166,10 @@ function CartDrawer() {
                 />
               ) : (
                 <div
-                  className="w-14 h-14 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
-                  style={{ background: 'var(--color-cream-dark)' }}
+                  className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'var(--color-cream-dark)', color: 'var(--color-muted)' }}
                 >
-                  🍽️
+                  <UtensilsIcon size={22} />
                 </div>
               )}
 
@@ -184,10 +204,10 @@ function CartDrawer() {
                   <button
                     onClick={() => updateQuantity(item._id, item.quantity - 1)}
                     aria-label={t('cart.decreaseQuantity')}
-                    className="w-7 h-7 rounded-full flex items-center justify-center text-white text-sm font-bold transition active:scale-90"
-                    style={{ background: item.quantity === 1 ? '#DC2626' : 'var(--color-primary)' }}
+                    className="w-7 h-7 rounded-full flex items-center justify-center text-white transition active:scale-90"
+                    style={{ background: item.quantity === 1 ? 'var(--danger)' : 'var(--color-primary)' }}
                   >
-                    {item.quantity === 1 ? '🗑' : '−'}
+                    {item.quantity === 1 ? <TrashIcon size={13} /> : '−'}
                   </button>
                   <span
                     className="w-7 text-center text-sm font-bold font-display"
@@ -218,10 +238,11 @@ function CartDrawer() {
             {/* Special requests */}
             <div>
               <label
-                className="block text-xs font-semibold uppercase tracking-wider mb-1.5"
+                className="block text-xs font-semibold uppercase tracking-wider mb-1.5 flex items-center gap-1.5"
                 style={{ color: 'var(--color-muted)' }}
               >
-                💬 {t('cart.specialRequests')}
+                <MessageIcon size={12} />
+                <span>{t('cart.specialRequests')}</span>
               </label>
               <textarea
                 value={customerNote}
@@ -259,7 +280,7 @@ function CartDrawer() {
             {error && (
               <p
                 className="text-xs px-3 py-2 rounded-lg animate-fade-up"
-                style={{ background: '#FEE2E2', color: '#991B1B' }}
+                style={{ background: 'var(--danger-pale)', color: 'var(--danger)' }}
               >
                 {error}
               </p>
@@ -278,17 +299,18 @@ function CartDrawer() {
                 </>
               ) : (
                 <>
-                  <span>🍽️</span>
+                  <ChefHatIcon size={18} />
                   <span>{t('cart.placeOrder', { price: formatPrice(grandTotal) })}</span>
                 </>
               )}
             </button>
 
             <p
-              className="text-center text-xs"
+              className="text-center text-xs flex items-center justify-center gap-1.5"
               style={{ color: 'var(--color-muted)' }}
             >
-              🔒 {t('cart.secureNote')}
+              <LockIcon size={11} />
+              <span>{t('cart.secureNote')}</span>
             </p>
           </div>
         )}
@@ -301,10 +323,10 @@ function CartDrawer() {
           style={{ background: 'rgba(44,26,14,0.88)', backdropFilter: 'blur(6px)' }}
         >
           <div
-            className="text-6xl mb-4"
-            style={{ animation: 'plateSpin 1.5s ease-out forwards' }}
+            className="mb-4"
+            style={{ color: 'var(--color-gold)', animation: 'plateSpin 1.5s ease-out forwards' }}
           >
-            🍽️
+            <ChefHatIcon size={64} />
           </div>
           <p
             className="font-display text-2xl animate-fade-up"
@@ -314,7 +336,7 @@ function CartDrawer() {
           </p>
           <p
             className="text-sm mt-2 animate-fade-up"
-            style={{ color: 'rgba(253,246,236,0.7)', animationDelay: '0.5s' }}
+            style={{ color: 'rgba(255,255,255,0.75)', animationDelay: '0.5s' }}
           >
             {t('cart.pleaseWait')}
           </p>

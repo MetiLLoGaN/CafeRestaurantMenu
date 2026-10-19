@@ -1,11 +1,14 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useBranding } from '../../context/BrandingContext';
+import { ArmchairIcon, ClockIcon, ChefHatIcon } from '../../components/icons';
 
 function OrderSuccessPage() {
   const navigate  = useNavigate();
   const location  = useLocation();
   const { t } = useTranslation();
+  const { previewBranding, restoreBranding } = useBranding();
   const [tableNumber, setTableNumber] = useState(null);
   const [owner, setOwner]             = useState(null);
   const [visible, setVisible]         = useState(false);
@@ -20,10 +23,18 @@ function OrderSuccessPage() {
     return () => clearTimeout(t);
   }, [location]);
 
+  /* Keep this page inside the restaurant's theme: the cart drawer hands
+     the branding over via router state. Direct visits (no state) fall
+     back to the application defaults. */
+  useEffect(() => {
+    previewBranding(location.state?.branding || null);
+    return () => restoreBranding();
+  }, [location.state, previewBranding, restoreBranding]);
+
   /* Simple CSS confetti burst using random spans */
   const confettiPieces = Array.from({ length: 18 }, (_, i) => ({
     id: i,
-    color: ['var(--color-gold)', 'var(--color-primary)', '#F97316', '#16A34A', '#2563EB'][i % 5],
+    color: ['var(--color-gold)', 'var(--color-primary)', 'var(--color-gold-light)', 'var(--color-secondary)', 'var(--color-accent)'][i % 5],
     left:  `${Math.random() * 90 + 5}%`,
     delay: `${Math.random() * 0.8}s`,
     size:  `${Math.random() * 8 + 6}px`,
@@ -92,17 +103,17 @@ function OrderSuccessPage() {
             xmlns="http://www.w3.org/2000/svg"
           >
             {/* Background circle */}
-            <circle cx="50" cy="50" r="48" fill="#DCFCE7" />
+            <circle cx="50" cy="50" r="48" style={{ fill: 'var(--success-pale)' }} />
             {/* Animated circle border */}
             <circle
               cx="50" cy="50" r="44"
-              stroke="var(--color-success)"
               strokeWidth="4"
               fill="none"
               strokeLinecap="round"
               strokeDasharray="283"
               strokeDashoffset="283"
               style={{
+                stroke: 'var(--success)',
                 animation: visible ? 'drawCircle 0.7s ease-out 0.1s forwards' : 'none',
                 transform: 'rotate(-90deg)',
                 transformOrigin: '50% 50%',
@@ -111,7 +122,6 @@ function OrderSuccessPage() {
             {/* Animated checkmark */}
             <path
               d="M28 52 L44 68 L72 36"
-              stroke="var(--color-success)"
               strokeWidth="5"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -119,6 +129,7 @@ function OrderSuccessPage() {
               strokeDasharray="100"
               strokeDashoffset="100"
               style={{
+                stroke: 'var(--success)',
                 animation: visible ? 'drawCheck 0.5s ease-out 0.8s forwards' : 'none',
               }}
             />
@@ -175,7 +186,7 @@ function OrderSuccessPage() {
 
         {/* Info card */}
         <div
-          className="rounded-2xl p-5 mb-7 text-start space-y-3 ornament-corners"
+          className="rounded-2xl p-5 mb-7 text-start space-y-3 ornament"
           style={{
             background: 'var(--color-white)',
             border: '1.5px solid var(--color-gold)',
@@ -186,7 +197,7 @@ function OrderSuccessPage() {
         >
           {tableNumber && (
             <div className="flex items-center gap-3">
-              <span className="text-xl">🪑</span>
+              <ArmchairIcon size={20} style={{ color: 'var(--color-gold)', flexShrink: 0 }} />
               <div>
                 <p className="text-xs uppercase tracking-wide" style={{ color: 'var(--color-muted)' }}>{t('orderSuccess.tableLabel')}</p>
                 <p className="font-display text-lg font-bold" style={{ color: 'var(--color-espresso)' }}>
@@ -197,7 +208,7 @@ function OrderSuccessPage() {
           )}
 
           <div className="flex items-center gap-3">
-            <span className="text-xl">⏱</span>
+            <ClockIcon size={20} style={{ color: 'var(--color-gold)', flexShrink: 0 }} />
             <div>
               <p className="text-xs uppercase tracking-wide" style={{ color: 'var(--color-muted)' }}>{t('orderSuccess.estimatedTime')}</p>
               <p className="font-display text-lg font-bold" style={{ color: 'var(--color-espresso)' }}>                  {t('orderSuccess.timeRange')}
@@ -206,7 +217,7 @@ function OrderSuccessPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="text-xl">👨‍🍳</span>
+            <ChefHatIcon size={20} style={{ color: 'var(--color-success)', flexShrink: 0 }} />
             <div>
               <p className="text-xs uppercase tracking-wide" style={{ color: 'var(--color-muted)' }}>{t('orderSuccess.statusLabel')}</p>
               <p className="font-display text-lg font-bold" style={{ color: 'var(--color-success)' }}>                  {t('orderSuccess.receivedByKitchen')}

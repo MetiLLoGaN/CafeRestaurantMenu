@@ -112,15 +112,29 @@ export const BrandingProvider = ({ children }) => {
     }
   }, []);
 
-  /* Apply an unsaved palette (preview) without persisting it */
+  /* Apply an unsaved palette (preview) without persisting it.
+     Passing null/undefined removes every override so the app's own
+     default tokens apply — used by the public menu when a restaurant
+     has no branding to show. */
   const previewBranding = useCallback((next) => {
-    applyTheme(next || DEFAULT_BRANDING);
+    if (next) {
+      applyTheme(next);
+    } else {
+      clearTheme();
+    }
   }, []);
 
-  /* Re-apply the saved theme (or defaults when logged out) */
+  /* Re-apply the saved theme. When no admin session is active there is
+     no saved theme to restore, so the overrides are removed entirely —
+     this keeps a previewed restaurant theme from leaking onto the login
+     / inquiry pages after leaving the public menu. */
   const restoreBranding = useCallback(() => {
-    applyTheme(branding || DEFAULT_BRANDING);
-  }, [branding]);
+    if (isAuthenticated) {
+      applyTheme(branding || DEFAULT_BRANDING);
+    } else {
+      clearTheme();
+    }
+  }, [isAuthenticated, branding]);
 
   const value = {
     branding,

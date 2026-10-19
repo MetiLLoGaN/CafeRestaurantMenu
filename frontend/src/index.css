@@ -64,6 +64,7 @@
   --shadow-gold: 0 4px 24px rgba(166, 124, 82, 0.28);
   --shadow-card:
     0 2px 12px rgba(47, 42, 36, 0.08), 0 1px 3px rgba(47, 42, 36, 0.05);
+  --shadow-float: 0 12px 32px rgba(47, 42, 36, 0.28); /* floating cart */
 
   /* ── Typography ────────────────────────────────────────────── */
   --font-display: "Playfair Display", Georgia, "Times New Roman", serif;
@@ -1096,10 +1097,42 @@ html[lang="fa"] .font-accent {
   font-style: italic;
 }
 
+/* Underline-boxed variant (customer cart notes) */
+.input-bordered {
+  display: block;
+  width: 100%;
+  background: var(--white);
+  border: 1.5px solid var(--divider);
+  border-radius: var(--radius-md);
+  padding: 0.6rem 0.85rem;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  color: var(--espresso);
+  outline: none;
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+.input-bordered:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--ring-gold);
+}
+.input-bordered::placeholder {
+  color: var(--muted);
+  font-style: italic;
+}
+
 /* Focus-visible ring for accessibility */
 .input:focus-visible,
 .input-line:focus-visible,
+.input-bordered:focus-visible,
 button:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+/* Explicit focus helper (themed ring for custom interactive elements) */
+.focus-gold:focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: 3px;
 }
@@ -1185,6 +1218,12 @@ textarea.input {
   color: var(--gold-light);
   animation: pulse 2s infinite;
 }
+/* "Chef's pick" / popular badge — gold ribbon readable on both
+   the themed hero gradient and light menu cards */
+.badge-popular {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: var(--espresso);
+}
 
 /* ═══════════════════════════════════════════════════════════════════
    GOLD ORNAMENTAL DIVIDER
@@ -1203,7 +1242,8 @@ textarea.input {
   background: linear-gradient(to right, transparent, var(--gold), transparent);
   opacity: 0.5;
 }
-.gold-divider .icon {
+.gold-divider .icon,
+.gold-divider-icon {
   color: var(--gold);
   font-size: 13px;
   opacity: 0.75;
@@ -1370,6 +1410,31 @@ textarea.input {
 /* ═══════════════════════════════════════════════════════════════════
    MODAL & OVERLAY SYSTEM
 ═══════════════════════════════════════════════════════════════════ */
+/* Customer-menu variants (menu item detail dialog) */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  background: rgba(44, 26, 14, 0.58);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: fadeIn 0.22s ease;
+}
+.modal-panel {
+  background: var(--white);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-xl);
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: scaleUp 0.32s var(--ease-bounce);
+}
+
 .overlay {
   position: fixed;
   inset: 0;
@@ -1690,6 +1755,21 @@ textarea.input {
   font-size: 1.15rem;
   font-weight: 700;
   color: var(--primary);
+}
+/* Card root used by <MenuItemCard> */
+.card-restaurant {
+  background: var(--white);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  transition:
+    transform 0.32s var(--ease),
+    box-shadow 0.32s var(--ease);
+}
+.card-restaurant:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
 }
 
 /* Quantity controls */

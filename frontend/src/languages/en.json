@@ -175,16 +175,16 @@
     "tagline": "Crafted with passion, served with love",
     "subtitle": "Browse our menu and place your order right from this page",
     "restaurantLogin": "Restaurant Login",
-    "chefsRecommendations": "⭐ Chef's Recommendations",
+    "chefsRecommendations": "Chef's Recommendations",
     "chefsPick": "★ Chef's Pick",
     "searchPlaceholder": "Search dishes by name or description…",
-    "searchDishes": "🔍 Search dishes…",
+    "searchDishes": "Search dishes…",
     "closeSearch": "Close search",
     "filters": {
-      "vegetarian": "🌱 Vegetarian",
-      "spicy": "🌶 Spicy",
-      "popular": "⭐ Popular",
-      "quick": "⚡ Quick"
+      "vegetarian": "Vegetarian",
+      "spicy": "Spicy",
+      "popular": "Popular",
+      "quick": "Quick"
     },
     "clear": "✕ Clear",
     "noResults": "No dishes found",
@@ -200,14 +200,14 @@
   "itemCard": {
     "currentlyUnavailable": "Currently Unavailable",
     "popularBadge": "★ Popular",
-    "veg": "🌱 Veg",
-    "vegetarianBadge": "🌱 Vegetarian",
-    "spicyBadge": "🌶 Spicy",
+    "veg": "Veg",
+    "vegetarianBadge": "Vegetarian",
+    "spicyBadge": "Spicy",
     "minutes": "{{count}} min",
     "minPrep": "⏱ {{count}} min prep time",
-    "allergens": "⚠️ allergens",
+    "allergens": "Allergens",
     "containsTitle": "Contains: {{list}}",
-    "contains": "⚠️ Contains: {{list}}",
+    "contains": "Contains: {{list}}",
     "addToOrder": "Add to Order",
     "unavailable": "Unavailable",
     "removeOne": "Remove one",
@@ -451,7 +451,7 @@
     }
   },
   "orderSuccess": {
-    "title": "Order Placed! 🎉",
+    "title": "Order Placed!",
     "subtitle": "Your order is heading to the kitchen!",
     "relax": "Sit back, relax, and we'll take care of the rest.",
     "tableLabel": "Table",
@@ -459,7 +459,7 @@
     "timeRange": "15 – 25 minutes",
     "statusLabel": "Status",
     "receivedByKitchen": "Received by kitchen",
-    "backToMenu": "🍽️ Back to Menu",
+    "backToMenu": "Back to Menu",
     "addMore": "You can add more items anytime"
   }
 }

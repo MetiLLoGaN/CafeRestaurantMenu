@@ -3,6 +3,7 @@ import { useCart } from '../context/CartContext';
 import { useTranslation } from 'react-i18next';
 import resolveImageUrl from '../utils/resolveImageUrl';
 import { useFormatPrice } from '../utils/currency';
+import { UtensilsIcon, ClockIcon, FlameIcon } from './icons';
 
 function MenuItemCard({ item, index = 0 }) {
   const { t } = useTranslation();
@@ -43,7 +44,6 @@ function MenuItemCard({ item, index = 0 }) {
         {/* Image */}
         <div
           className="img-zoom-wrap relative"
-          style={{ height: '190px', backgroundColor: 'var(--color-cream-dark)' }}
           onClick={() => setShowDetail(true)}
           style={{ cursor: 'pointer', height: '190px', backgroundColor: 'var(--color-cream-dark)' }}
         >
@@ -56,8 +56,8 @@ function MenuItemCard({ item, index = 0 }) {
               onError={() => setImgFailed(true)}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <span className="text-5xl opacity-40">🍽️</span>
+            <div className="w-full h-full flex items-center justify-center" style={{ color: 'var(--color-muted)' }}>
+              <UtensilsIcon size={40} />
             </div>
           )}
 
@@ -91,9 +91,7 @@ function MenuItemCard({ item, index = 0 }) {
               </span>
             )}
             {item.isVegetarian && (
-              <span className="badge text-xs px-2 py-0.5" style={{ background:'#D1FAE5', color:'#065F46' }}              >
-                {t('itemCard.veg')}
-              </span>
+              <span className="badge badge-veg text-xs px-2 py-0.5">{t('itemCard.veg')}</span>
             )}
           </div>
         </div>
@@ -123,11 +121,15 @@ function MenuItemCard({ item, index = 0 }) {
           <div className="flex items-center gap-3 mb-3 text-xs" style={{ color: 'var(--color-muted)' }}>
             {item.preparationTime && (
               <span className="flex items-center gap-1">
-                <span>⏱</span>
+                <ClockIcon size={13} />
                 <span>{t('itemCard.minutes', { count: item.preparationTime })}</span>
               </span>
             )}
-            {item.isSpicy && <span title={t('itemCard.spicyBadge')}>🌶</span>}
+            {item.isSpicy && (
+              <span title={t('itemCard.spicyBadge')} className="flex items-center" style={{ color: 'var(--danger)' }}>
+                <FlameIcon size={14} />
+              </span>
+            )}
             {item.allergens?.length > 0 && (
               <span title={t('itemCard.containsTitle', { list: item.allergens.join(', ') })} className="cursor-help">
                 {t('itemCard.allergens')}
@@ -232,10 +234,10 @@ function MenuItemCard({ item, index = 0 }) {
               <div className="flex flex-wrap gap-2 mb-3">
                 {item.isPopular && <span className="badge badge-popular">{t('itemCard.popularBadge')}</span>}
                 {item.isVegetarian && (
-                  <span className="badge" style={{ background:'#D1FAE5', color:'#065F46' }}>{t('itemCard.vegetarianBadge')}</span>
+                  <span className="badge badge-veg">{t('itemCard.vegetarianBadge')}</span>
                 )}
                 {item.isSpicy && (
-                  <span className="badge" style={{ background:'#FEE2E2', color:'#991B1B' }}>{t('itemCard.spicyBadge')}</span>
+                  <span className="badge badge-spicy">{t('itemCard.spicyBadge')}</span>
                 )}
               </div>
 

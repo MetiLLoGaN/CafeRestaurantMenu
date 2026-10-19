@@ -175,16 +175,16 @@
     "tagline": "با عشق پخته می‌شود، با محبت سرو می‌شود",
     "subtitle": "منوی ما را ببینید و همین‌جا سفارش خود را ثبت کنید",
     "restaurantLogin": "ورود رستوران",
-    "chefsRecommendations": "⭐ پیشنهاد سرآشپز",
+    "chefsRecommendations": "پیشنهاد سرآشپز",
     "chefsPick": "★ انتخاب سرآشپز",
     "searchPlaceholder": "جستجوی غذا بر اساس نام یا توضیحات…",
-    "searchDishes": "🔍 جستجوی غذاها…",
+    "searchDishes": "جستجوی غذاها…",
     "closeSearch": "بستن جستجو",
     "filters": {
-      "vegetarian": "🌱 گیاهی",
-      "spicy": "🌶 تند",
-      "popular": "⭐ محبوب",
-      "quick": "⚡ سریع"
+      "vegetarian": "گیاهی",
+      "spicy": "تند",
+      "popular": "محبوب",
+      "quick": "سریع"
     },
     "clear": "✕ پاک کردن",
     "noResults": "غذایی یافت نشد",
@@ -200,14 +200,14 @@
   "itemCard": {
     "currentlyUnavailable": "فعلاً موجود نیست",
     "popularBadge": "★ محبوب",
-    "veg": "🌱 گیاهی",
-    "vegetarianBadge": "🌱 گیاهی",
-    "spicyBadge": "🌶 تند",
+    "veg": "گیاهی",
+    "vegetarianBadge": "گیاهی",
+    "spicyBadge": "تند",
     "minutes": "{{count}} دقیقه",
     "minPrep": "⏱ {{count}} دقیقه آماده‌سازی",
-    "allergens": "⚠️ حساسیت‌زاها",
+    "allergens": "حساسیت‌زاها",
     "containsTitle": "حاوی: {{list}}",
-    "contains": "⚠️ حاوی: {{list}}",
+    "contains": "حاوی: {{list}}",
     "addToOrder": "افزودن به سفارش",
     "unavailable": "ناموجود",
     "removeOne": "کم کردن یکی",
@@ -451,7 +451,7 @@
     }
   },
   "orderSuccess": {
-    "title": "سفارش ثبت شد! 🎉",
+    "title": "سفارش ثبت شد!",
     "subtitle": "سفارش شما به سمت آشپزخانه می‌رود!",
     "relax": "آرام بنشینید و استراحت کنید، بقیه کار با ماست.",
     "tableLabel": "میز",
@@ -459,7 +459,7 @@
     "timeRange": "۱۵ تا ۲۵ دقیقه",
     "statusLabel": "وضعیت",
     "receivedByKitchen": "دریافت‌شده توسط آشپزخانه",
-    "backToMenu": "🍽️ بازگشت به منو",
+    "backToMenu": "بازگشت به منو",
     "addMore": "هر زمان می‌توانید آیتم اضافه کنید"
   }
 }
