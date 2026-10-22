@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../../api/axios';
 import Navbar from '../../components/Navbar';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -10,10 +11,14 @@ const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB — mirrors the server limit
 
 function MenuManagementPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const formatPrice = useFormatPrice();
+  const lang = (i18n.resolvedLanguage || i18n.language || 'en').startsWith('fa')
+    ? 'fa'
+    : 'en';
   const [menuItems, setMenuItems] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [attributes, setAttributes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
@@ -23,8 +28,20 @@ function MenuManagementPage() {
     price: '',
     category: '',
     isPopular: false,
-    preparationTime: ''
+    preparationTime: '',
+    attributes: []
   });
+
+  /* Inline "new attribute" panel inside the product form, so attribute
+     management is reachable without leaving the add/edit flow. */
+  const [quickCreate, setQuickCreate] = useState(false);
+  const [quickForm, setQuickForm] = useState({ fa: '', en: '', color: '' });
+  const [quickError, setQuickError] = useState('');
+  const [quickSaving, setQuickSaving] = useState(false);
+
+  /* Localized, fall-back-aware label for an attribute document */
+  const attributeLabel = (attribute) =>
+    (attribute.name && (attribute.name[lang] || attribute.name[lang === 'fa' ? 'en' : 'fa'])) || '';
 
   /* Image upload state */
   const [imageFile, setImageFile] = useState(null);
@@ -34,12 +51,14 @@ function MenuManagementPage() {
 
   const fetchData = async () => {
     try {
-      const [menuRes, catRes] = await Promise.all([
+      const [menuRes, catRes, attrRes] = await Promise.all([
         api.get('/menu/items'),
-        api.get('/menu/categories')
+        api.get('/menu/categories'),
+        api.get('/attributes')
       ]);
       setMenuItems(menuRes.data.menuItems);
       setCategories(catRes.data.categories);
+      setAttributes(attrRes.data.attributes || []);
     } catch (error) {
       console.error('Failed to fetch data:', error);
     } finally {
@@ -133,6 +152,8 @@ function MenuManagementPage() {
     clearSelectedImage();
     setRemoveImage(false);
     setSaveError('');
+    setQuickCreate(false);
+    setQuickError('');
     setEditingItem(item);
     setFormData({
       name: item.name,
@@ -140,9 +161,53 @@ function MenuManagementPage() {
       price: item.price,
       category: item.category._id,
       isPopular: item.isPopular,
-      preparationTime: item.preparationTime || ''
+      preparationTime: item.preparationTime || '',
+      attributes: (item.attributes || [])
+        .filter((a) => a && a._id)
+        .map((a) => a._id)
     });
     setShowModal(true);
+  };
+
+  const toggleAttribute = (id) => {
+    setFormData((prev) => ({
+      ...prev,
+      attributes: prev.attributes.includes(id)
+        ? prev.attributes.filter((a) => a !== id)
+        : [...prev.attributes, id]
+    }));
+  };
+
+  const handleQuickCreate = async (e) => {
+    e.preventDefault();
+    setQuickError('');
+
+    const payload = {
+      name: { fa: quickForm.fa.trim(), en: quickForm.en.trim() },
+      color: quickForm.color || ''
+    };
+    if (!payload.name.fa && !payload.name.en) {
+      setQuickError(t('attributes.nameRequired'));
+      return;
+    }
+
+    setQuickSaving(true);
+    try {
+      const { data } = await api.post('/attributes', payload);
+      const created = data.attribute;
+      setAttributes((prev) => [created, ...prev]);
+      setFormData((prev) => ({
+        ...prev,
+        attributes: [...prev.attributes, created._id]
+      }));
+      setQuickForm({ fa: '', en: '', color: '' });
+      setQuickCreate(false);
+    } catch (error) {
+      console.error('Failed to create attribute:', error);
+      setQuickError(error.response?.data?.message || t('attributes.saveFailed'));
+    } finally {
+      setQuickSaving(false);
+    }
   };
 
   const resetForm = () => {
@@ -153,11 +218,15 @@ function MenuManagementPage() {
       price: '',
       category: '',
       isPopular: false,
-      preparationTime: ''
+      preparationTime: '',
+      attributes: []
     });
     clearSelectedImage();
     setRemoveImage(false);
     setSaveError('');
+    setQuickCreate(false);
+    setQuickForm({ fa: '', en: '', color: '' });
+    setQuickError('');
   };
 
   if (loading) {
@@ -185,6 +254,7 @@ function MenuManagementPage() {
               <th className="px-4 py-3 text-start text-sm font-medium text-gray-500">{t('common.price')}</th>
               <th className="px-4 py-3 text-start text-sm font-medium text-gray-500">{t('common.available')}</th>
               <th className="px-4 py-3 text-start text-sm font-medium text-gray-500">{t('common.popular')}</th>
+              <th className="px-4 py-3 text-start text-sm font-medium text-gray-500">{t('attributes.assign')}</th>
               <th className="px-4 py-3 text-start text-sm font-medium text-gray-500">{t('common.actions')}</th>
             </tr>
           </thead>
@@ -223,6 +293,19 @@ function MenuManagementPage() {
                   )}
                 </td>
                 <td className="px-4 py-3">
+                  <div className="flex flex-wrap gap-1">
+                    {(item.attributes || []).map((attribute) => (
+                      <span
+                        key={attribute._id}
+                        className="text-xs px-2 py-0.5 rounded-full text-white"
+                        style={{ background: attribute.color || 'var(--color-primary)' }}
+                      >
+                        {attributeLabel(attribute) || '—'}
+                      </span>
+                    ))}
+                  </div>
+                </td>
+                <td className="px-4 py-3">
                   <button onClick={() => openEdit(item)} className="text-primary me-2">{t('common.edit')}</button>
                   <button onClick={() => handleDelete(item._id)} className="text-red-500">{t('common.delete')}</button>
                 </td>
@@ -234,7 +317,7 @@ function MenuManagementPage() {
 
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-bold mb-4">{editingItem ? t('menuManagement.editItem') : t('menuManagement.addItem')}</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -292,6 +375,114 @@ function MenuManagementPage() {
                   onChange={(e) => setFormData({ ...formData, preparationTime: e.target.value })}
                   className="w-full border rounded-lg p-2"
                 />
+              </div>
+              {/* Assign admin-defined attributes (badges) */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-sm font-medium">
+                    {t('attributes.assign')}
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => { setQuickCreate((v) => !v); setQuickError(''); }}
+                    className="text-xs text-primary font-medium"
+                  >
+                    {quickCreate ? t('common.cancel') : t('attributes.quickAdd')}
+                  </button>
+                </div>
+
+                {attributes.length === 0 ? (
+                  <p className="text-xs text-gray-500 mb-2">{t('attributes.none')}</p>
+                ) : (
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {attributes.map((attribute) => {
+                      const selected = formData.attributes.includes(attribute._id);
+                      return (
+                        <button
+                          type="button"
+                          key={attribute._id}
+                          onClick={() => toggleAttribute(attribute._id)}
+                          aria-pressed={selected}
+                          className="text-xs px-2.5 py-1 rounded-full transition"
+                          style={
+                            selected
+                              ? {
+                                  background: attribute.color || 'var(--color-primary)',
+                                  color: '#fff',
+                                  border: '1px solid transparent'
+                                }
+                              : {
+                                  background: '#fff',
+                                  color: 'var(--color-charcoal)',
+                                  border: '1px solid var(--color-divider)'
+                                }
+                          }
+                        >
+                          {attributeLabel(attribute) || '—'}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                <Link to="/admin/attributes" className="text-xs text-primary underline">
+                  {t('attributes.manage')}
+                </Link>
+
+                {quickCreate && (
+                  <form onSubmit={handleQuickCreate} className="border rounded-lg p-3 mt-2 space-y-2">
+                    <p className="text-xs text-gray-500">{t('attributes.quickAddHint')}</p>
+                    <input
+                      type="text"
+                      dir="rtl"
+                      lang="fa"
+                      maxLength={40}
+                      value={quickForm.fa}
+                      onChange={(e) => setQuickForm({ ...quickForm, fa: e.target.value })}
+                      placeholder={t('attributes.nameFaPlaceholder')}
+                      className="w-full border rounded-lg p-2 text-sm"
+                    />
+                    <input
+                      type="text"
+                      dir="ltr"
+                      lang="en"
+                      maxLength={40}
+                      value={quickForm.en}
+                      onChange={(e) => setQuickForm({ ...quickForm, en: e.target.value })}
+                      placeholder={t('attributes.nameEnPlaceholder')}
+                      className="w-full border rounded-lg p-2 text-sm"
+                    />
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={quickForm.color || '#6b855e'}
+                        onChange={(e) => setQuickForm({ ...quickForm, color: e.target.value })}
+                        className="w-8 h-8 rounded border p-0.5"
+                        aria-label={t('attributes.color')}
+                      />
+                      <span className="text-xs text-gray-500">{t('attributes.colorHint')}</span>
+                    </div>
+                    {quickError && (
+                      <p className="text-xs text-red-500" role="alert">{quickError}</p>
+                    )}
+                    <div className="flex gap-2">
+                      <button
+                        type="submit"
+                        disabled={quickSaving}
+                        className="flex-1 bg-primary text-white text-sm py-1.5 rounded-lg"
+                      >
+                        {quickSaving ? t('common.loading') : t('attributes.createAndAssign')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setQuickCreate(false); setQuickError(''); }}
+                        className="text-sm px-3 py-1.5 border rounded-lg bg-white"
+                      >
+                        {t('common.cancel')}
+                      </button>
+                    </div>
+                  </form>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">{t('menuManagement.image')}</label>

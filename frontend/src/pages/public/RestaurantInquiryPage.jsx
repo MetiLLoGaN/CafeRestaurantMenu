@@ -6,6 +6,7 @@ import {
   CONTACT_PHONE_TEL,
   HAS_CONTACT_PHONE,
 } from "../../config/contact";
+import logo96 from "../../Assets/images/72 - 72 logo.png";
 
 /* ══════════════════════════════════════════════════════════════════
    Public restaurant inquiry / service presentation page.
@@ -63,6 +64,8 @@ function RestaurantInquiryPage() {
   return (
     <div
       style={{
+        display: "flex",
+        flexDirection: "column",
         minHeight: "100vh",
         background: "var(--cream, #f7f3ed)",
         fontFamily: '"DM Sans", "Vazirmatn", system-ui, sans-serif',
@@ -73,51 +76,63 @@ function RestaurantInquiryPage() {
           position: "sticky",
           top: 0,
           zIndex: 20,
-          background: "rgba(247, 243, 237, 0.92)",
+          backgroundColor: "#2f606f",
           backdropFilter: "blur(8px)",
           borderBottom: "1px solid var(--divider, #d6c9b8)",
         }}>
         <div
           className="max-w-6xl mx-auto flex items-center justify-between gap-3"
-          style={{ padding: "14px 20px" }}>
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            padding: "14px 20px",
+          }}>
           <div className="flex items-center gap-3 min-w-0">
             <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
-              style={{ background: "var(--color-primary, #6b855e)" }}>
-              🍽️
+              className="w-15 h-15 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
+              style={{ background: "var( --primary-pale)" }}>
+              <img
+                style={{
+                  width: "80%",
+                }}
+                src={logo96}
+                alt="Tfnn logo"
+              />
             </div>
             <div className="min-w-0">
               <p
                 className="font-display font-bold leading-tight truncate"
-                style={{ color: "var(--espresso, #2f2a24)" }}>
+                style={{ color: "var( --primary-pale, #FFFFFF)" }}>
                 {t("common.brand")}
               </p>
               <p
                 className="text-xs truncate"
-                style={{ color: "var(--muted, #8f8982)" }}>
+                style={{ color: "var(--primary, #8f8982)" }}>
                 {t("inquiry.brandSubtitle")}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 ">
+            <Link
+              style={{ backgroundColor: "#dde7dc" }}
+              to="/admin/login"
+              className="sidebar-link basis-[15rem] shrink-[.90]"
+              aria-label={t("menu.restaurantLogin")}>
+              <span style={{ fontSize: "16px", color: "black" }}>🔐</span>
+              <span style={{ color: "black" }}>{t("inquiry.navLogin")}</span>
+            </Link>
             <button
               onClick={toggleLanguage}
-              className="sidebar-link"
+              className="sidebar-link "
+              style={{ backgroundColor: "#dde7dc" }}
               aria-label={t("sidebar.changeLanguage")}
               title={t("sidebar.changeLanguage")}>
               <span style={{ fontSize: "16px" }}>🌐</span>
-              <span>
+              <span style={{ color: "black" }}>
                 {i18n.resolvedLanguage === "fa" ? "English" : "فارسی"}
               </span>
             </button>
-            <Link
-              to="/admin/login"
-              className="sidebar-link"
-              aria-label={t("menu.restaurantLogin")}>
-              <span style={{ fontSize: "16px" }}>🔐</span>
-              <span>{t("inquiry.navLogin")}</span>
-            </Link>
           </div>
         </div>
       </header>
@@ -130,7 +145,7 @@ function RestaurantInquiryPage() {
           <span
             className="inline-block text-xs font-bold uppercase tracking-widest animate-fade-up"
             style={{
-              color: "var(--color-primary, #6b855e)",
+              color: "var(--primary-hover, #6b855e)",
               background: "var(--primary-pale, #e9eee5)",
               padding: "6px 16px",
               borderRadius: "9999px",
@@ -174,7 +189,8 @@ function RestaurantInquiryPage() {
                 fontSize: "0.95rem",
                 fontWeight: 700,
                 cursor: "pointer",
-                boxShadow: "var(--shadow-gold, 0 4px 24px rgba(166,124,82,0.28))",
+                boxShadow:
+                  "var(--shadow-gold, 0 4px 24px rgba(166,124,82,0.28))",
                 transition: "background 0.2s ease, transform 0.15s ease",
               }}
               onMouseEnter={(e) =>
@@ -281,7 +297,8 @@ function RestaurantInquiryPage() {
                     alignItems: "center",
                     justifyContent: "center",
                     fontSize: "1.3rem",
-                    boxShadow: "var(--shadow-sm, 0 2px 10px rgba(47,42,36,0.09))",
+                    boxShadow:
+                      "var(--shadow-sm, 0 2px 10px rgba(47,42,36,0.09))",
                   }}>
                   {i + 1}
                 </div>

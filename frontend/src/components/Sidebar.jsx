@@ -9,9 +9,11 @@ const navItems = [
   { path: "/admin/dashboard", labelKey: "sidebar.dashboard", icon: "📊" },
   { path: "/admin/menu", labelKey: "sidebar.menuItems", icon: "🍽️" },
   { path: "/admin/categories", labelKey: "sidebar.categories", icon: "📂" },
+  { path: "/admin/attributes", labelKey: "sidebar.attributes", icon: "🏷️" },
   { path: "/admin/orders", labelKey: "sidebar.liveOrders", icon: "🛒" },
   { path: "/admin/tables", labelKey: "sidebar.tablesQr", icon: "🪑" },
   { path: "/admin/theme", labelKey: "sidebar.theme", icon: "🎨" },
+  { path: "/admin/content", labelKey: "sidebar.content", icon: "📝" },
 ];
 
 function Sidebar() {

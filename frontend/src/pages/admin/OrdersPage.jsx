@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { useAuth } from '../../context/AuthContext';
 import api from '../../api/axios';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import Navbar from '../../components/Navbar';
 import { useTranslation } from 'react-i18next';
 import { useFormatPrice } from '../../utils/currency';
 
@@ -225,7 +225,6 @@ function OrderCard({ order, onUpdate, kitchenOnline }) {
 }
 
 function OrdersPage() {
-  const { user } = useAuth();
   const { t } = useTranslation();
   const [orders, setOrders]           = useState([]);
   const [loading, setLoading]         = useState(true);
@@ -281,25 +280,13 @@ function OrdersPage() {
   const activeOrders = [...pendingOrders, ...preparingOrders];
 
   return (
+    <Navbar title={t('orders.title')}>
     <div
       className="min-h-screen pb-24 md:pb-8"
       style={{ background: 'var(--color-cream)' }}
     >
-      {/* Top Header with Restaurant Name */}
-      <header
-        className="sticky top-0 z-40 px-4 py-4 flex items-center justify-between"
-        style={{ background: 'var(--color-cream)', borderBottom: '1px solid #E8D5B7' }}
-      >
-        <button className="text-2xl p-2 -ms-2 md:hidden" aria-label={t('orders.menuAria')}>
-          ☰
-        </button>
-        <h1 className="font-black text-xl flex-1 text-center md:text-start" style={{ color: 'var(--color-espresso)' }}>
-          {user?.restaurantName}
-        </h1>
-        <button className="text-2xl p-2 -me-2" aria-label={t('orders.cartAria')}>
-          🛒
-        </button>
-      </header>
+      {/* Page header (restaurant name, user, mobile hamburger) is the
+          shared admin Navbar — same as every other admin page. */}
 
       {/* Main Content */}
       <div className="px-4 py-6 max-w-4xl mx-auto">
@@ -422,6 +409,7 @@ function OrdersPage() {
         }
       `}</style>
     </div>
+    </Navbar>
   );
 }
 

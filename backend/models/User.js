@@ -87,6 +87,31 @@ const brandingSchema = new mongoose.Schema(
   { _id: false }
 );
 
+/* Bilingual (fa/en) customer-facing menu content — heading, tagline,
+   CTAs, etc. for the public QR menu. Fields a restaurant never fills
+   in stay empty and fall back to the app's default translations on
+   the client, so no migration is needed for existing documents. */
+const localizedTextSchema = new mongoose.Schema(
+  {
+    fa: { type: String, trim: true, maxlength: 600, default: '' },
+    en: { type: String, trim: true, maxlength: 600, default: '' }
+  },
+  { _id: false }
+);
+
+const menuContentSchema = new mongoose.Schema(
+  {
+    heading: { type: localizedTextSchema, default: () => ({}) },
+    tagline: { type: localizedTextSchema, default: () => ({}) },
+    subtitle: { type: localizedTextSchema, default: () => ({}) },
+    description: { type: localizedTextSchema, default: () => ({}) },
+    instructions: { type: localizedTextSchema, default: () => ({}) },
+    menuButtonLabel: { type: localizedTextSchema, default: () => ({}) },
+    orderButtonLabel: { type: localizedTextSchema, default: () => ({}) }
+  },
+  { _id: false }
+);
+
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -137,6 +162,11 @@ const userSchema = new mongoose.Schema({
   },
   branding: {
     type: brandingSchema,
+    default: () => ({})
+  },
+  /* Per-restaurant customer-facing text (see utils/menuContent.js) */
+  menuContent: {
+    type: menuContentSchema,
     default: () => ({})
   },
   createdAt: {

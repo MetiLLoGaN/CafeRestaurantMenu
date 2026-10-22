@@ -9,6 +9,7 @@ import CategoryPage from './pages/admin/CategoryPage';
 import OrdersPage from './pages/admin/OrdersPage';
 import TablesPage from './pages/admin/TablesPage';
 import ThemeSettingsPage from './pages/admin/ThemeSettingsPage';
+import MenuContentPage from './pages/admin/MenuContentPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import SuperAdminRoute from './components/SuperAdminRoute';
 import SuperAdminLayout from './pages/superAdmin/SuperAdminLayout';
@@ -74,6 +75,13 @@ function App() {
           <CategoryPage />
         </ProtectedRoute>
       } />
+      <Route path="/admin/attributes" element={
+        <ProtectedRoute>
+          {/* Same page as /admin/categories, opened on the Product
+              Attributes section */}
+          <CategoryPage initialTab="attributes" />
+        </ProtectedRoute>
+      } />
       <Route path="/admin/orders" element={
         <ProtectedRoute>
           <OrdersPage />
@@ -87,6 +95,11 @@ function App() {
       <Route path="/admin/theme" element={
         <ProtectedRoute>
           <ThemeSettingsPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/admin/content" element={
+        <ProtectedRoute>
+          <MenuContentPage />
         </ProtectedRoute>
       } />
     </Routes>

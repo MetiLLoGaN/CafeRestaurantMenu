@@ -2,10 +2,19 @@ import { useEffect, useState } from 'react';
 import api from '../../api/axios';
 import Navbar from '../../components/Navbar';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import AttributeManager from '../../components/AttributeManager';
 import { useTranslation } from 'react-i18next';
 
-function CategoryPage() {
+/* ══════════════════════════════════════════════════════════════════
+   CATEGORIES
+   One page, two sections (tabs): product Categories and Product
+   Attributes. `initialTab` lets deep links (e.g. the sidebar's
+   «Product Attributes» entry → /admin/attributes) open the right tab.
+══════════════════════════════════════════════════════════════════ */
+function CategoryPage({ initialTab = 'categories' }) {
   const { t } = useTranslation();
+  const [activeTab, setActiveTab] = useState(initialTab);
+
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -68,18 +77,52 @@ function CategoryPage() {
     return <LoadingSpinner />;
   }
 
+  const tabs = [
+    { id: 'categories', label: t('categories.title') },
+    { id: 'attributes', label: t('attributes.title') }
+  ];
+
   return (
     <Navbar>
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">{t('categories.title')}</h1>
-        <button
-          onClick={() => { resetForm(); setShowModal(true); }}
-          className="bg-primary text-white px-4 py-2 rounded-lg font-medium"
-        >
-          {t('categories.addCategory')}
-        </button>
+        {activeTab === 'categories' && (
+          <button
+            onClick={() => { resetForm(); setShowModal(true); }}
+            className="bg-primary text-white px-4 py-2 rounded-lg font-medium"
+          >
+            {t('categories.addCategory')}
+          </button>
+        )}
       </div>
 
+      {/* Sections: Categories | Product Attributes */}
+      <div
+        className="flex gap-1 mb-6 border-b"
+        style={{ borderColor: 'var(--color-divider)' }}
+        role="tablist"
+        aria-label={t('categories.title')}
+      >
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            role="tab"
+            aria-selected={activeTab === tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition ${
+              activeTab === tab.id
+                ? 'border-primary text-primary'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === 'attributes' ? (
+        <AttributeManager />
+      ) : (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {categories.map(category => (
           <div key={category._id} className="bg-white p-4 rounded-xl shadow-sm">
@@ -97,6 +140,7 @@ function CategoryPage() {
           </div>
         ))}
       </div>
+      )}
 
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

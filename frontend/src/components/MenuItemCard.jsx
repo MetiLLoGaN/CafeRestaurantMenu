@@ -1,30 +1,68 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { useTranslation } from 'react-i18next';
 import resolveImageUrl from '../utils/resolveImageUrl';
 import { useFormatPrice } from '../utils/currency';
 import { UtensilsIcon, ClockIcon, FlameIcon } from './icons';
 
+/* ══════════════════════════════════════════════════════════════════
+   MENU ITEM CARD — compact horizontal (row) layout.
+
+   Image sits on the inline-start edge and the info column flows next
+   to it, so the card mirrors automatically in RTL. Long names and
+   descriptions are clamped, the info column is min-w-0, and the price
+   / add-to-cart row is pinned to the bottom — the card never grows
+   sideways, overlaps neighbours or breaks the grid.
+══════════════════════════════════════════════════════════════════ */
 function MenuItemCard({ item, index = 0 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const formatPrice = useFormatPrice();
+  const lang = (i18n.resolvedLanguage || i18n.language || 'en').startsWith('fa')
+    ? 'fa'
+    : 'en';
+
+  /* Admin-defined attribute badge — label in the active language with
+     a fallback to the other one, optional color, default otherwise. */
+  const attributeLabel = (attribute) => {
+    const entry = attribute && attribute.name;
+    if (!entry) return '';
+    return entry[lang] || entry[lang === 'fa' ? 'en' : 'fa'] || '';
+  };
+  const attributeStyle = (attribute) =>
+    attribute.color
+      ? { background: attribute.color, color: '#ffffff' }
+      : { background: 'var(--color-cream-dark)', color: 'var(--color-charcoal)' };
+
   const { addItem, updateQuantity, items: cartItems } = useCart();
   const cartItem = cartItems.find((ci) => ci._id === item._id);
   const quantity = cartItem?.quantity || 0;
-  const [adding, setAdding] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
   const [imgFailed, setImgFailed] = useState(false);
 
+  /* Transient "+1" confirmation. Adding an item replaces the add button
+     with the quantity stepper in the same render, so the feedback has to
+     live next to the stepper (and be announced to screen readers). */
+  const [addedAt, setAddedAt] = useState(0);
+  const addedTimer = useRef(null);
+
+  const flashAdded = () => {
+    setAddedAt(Date.now());
+    clearTimeout(addedTimer.current);
+    addedTimer.current = setTimeout(() => setAddedAt(0), 900);
+  };
+
+  useEffect(() => () => clearTimeout(addedTimer.current), []);
+
   const handleAdd = () => {
     if (!item.isAvailable) return;
-    setAdding(true);
     addItem(item);
-    setTimeout(() => setAdding(false), 600);
+    flashAdded();
   };
 
   const handleIncrement = (e) => {
     e.stopPropagation();
     updateQuantity(item._id, quantity + 1);
+    flashAdded();
   };
 
   const handleDecrement = (e) => {
@@ -32,43 +70,51 @@ function MenuItemCard({ item, index = 0 }) {
     updateQuantity(item._id, quantity - 1);
   };
 
+  const hasMeta =
+    Boolean(item.preparationTime) ||
+    Boolean(item.isSpicy) ||
+    (item.allergens && item.allergens.length > 0);
+
   return (
     <>
-      {/* ── Card ─────────────────────────────────────────────── */}
+      {/* ── Card (horizontal row) ──────────────────────────── */}
       <div
-        className="card-restaurant animate-fade-up focus-gold"
+        className="card-restaurant animate-fade-up flex items-stretch"
         style={{ animationDelay: `${index * 0.07}s` }}
         role="article"
         aria-label={item.name}
       >
-        {/* Image */}
+        {/* Image — inline-start column */}
         <div
-          className="img-zoom-wrap relative"
+          className="relative flex-shrink-0 cursor-pointer"
+          style={{ width: '108px', background: 'var(--color-cream-dark)' }}
           onClick={() => setShowDetail(true)}
-          style={{ cursor: 'pointer', height: '190px', backgroundColor: 'var(--color-cream-dark)' }}
         >
           {item.image && !imgFailed ? (
             <img
               src={resolveImageUrl(item.image)}
               alt={item.name}
-              className="w-full h-full object-cover"
+              className="absolute inset-0 w-full h-full object-cover"
               loading="lazy"
               onError={() => setImgFailed(true)}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center" style={{ color: 'var(--color-muted)' }}>
-              <UtensilsIcon size={40} />
+            <div
+              className="absolute inset-0 flex items-center justify-center"
+              style={{ color: 'var(--color-muted)' }}
+            >
+              <UtensilsIcon size={26} />
             </div>
           )}
 
           {/* Unavailable overlay */}
           {!item.isAvailable && (
             <div
-              className="absolute inset-0 flex items-center justify-center"
+              className="absolute inset-0 flex items-center justify-center px-1"
               style={{ background: 'rgba(44,26,14,0.65)' }}
             >
               <span
-                className="text-sm font-semibold px-3 py-1 rounded-full"
+                className="text-2xs font-semibold px-2 py-0.5 rounded-full text-center leading-tight"
                 style={{
                   background: 'rgba(255,255,255,0.15)',
                   color: 'white',
@@ -80,27 +126,34 @@ function MenuItemCard({ item, index = 0 }) {
             </div>
           )}
 
-          {/* Badges — top left */}
-          <div className="absolute top-2.5 start-2.5 flex flex-col gap-1.5">
-            {item.isPopular && (
-              <span
-                className="badge badge-popular animate-pop-in text-xs px-2.5 py-1"
-                style={{ fontFamily: 'var(--font-accent)', fontSize: '13px' }}
-              >
-                {t('itemCard.popularBadge')}
-              </span>
-            )}
-            {item.isVegetarian && (
-              <span className="badge badge-veg text-xs px-2 py-0.5">{t('itemCard.veg')}</span>
-            )}
-          </div>
+          {/* Badges — top inline-start */}
+          {(item.isPopular || item.isVegetarian) && (
+            <div className="absolute top-1.5 start-1.5 flex flex-col gap-1 items-start">
+              {item.isPopular && (
+                <span
+                  className="badge badge-popular animate-pop-in"
+                  style={{ fontSize: '10px', padding: '2px 7px' }}
+                >
+                  {t('itemCard.popularBadge')}
+                </span>
+              )}
+              {item.isVegetarian && (
+                <span
+                  className="badge badge-veg"
+                  style={{ fontSize: '10px', padding: '2px 7px' }}
+                >
+                  {t('itemCard.veg')}
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Body */}
-        <div className="p-4">
+        {/* Info column */}
+        <div className="flex-1 min-w-0 p-3 flex flex-col">
           {/* Name */}
           <h3
-            className="font-display text-lg leading-snug mb-1 cursor-pointer hover:underline"
+            className="font-display text-sm sm:text-base font-semibold leading-snug cursor-pointer hover:underline clamp-1"
             style={{ color: 'var(--color-espresso)', textDecorationColor: 'var(--color-gold)' }}
             onClick={() => setShowDetail(true)}
           >
@@ -108,55 +161,100 @@ function MenuItemCard({ item, index = 0 }) {
           </h3>
 
           {/* Description */}
-          <p className="line-clamp-2 text-sm mb-3" style={{ color: 'var(--color-muted)' }}>
+          <p
+            className="text-xs mt-0.5 clamp-2 leading-relaxed"
+            style={{ color: 'var(--color-muted)' }}
+          >
             {item.description}
           </p>
 
-          {/* Gold divider */}
-          <div className="gold-divider">
-            <span className="gold-divider-icon">◆</span>
-          </div>
+          {/* Admin-defined attribute badges */}
+          {Array.isArray(item.attributes) && item.attributes.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-1.5">
+              {item.attributes.map((attribute, aIdx) => (
+                <span
+                  key={attribute._id || `${attributeLabel(attribute)}-${aIdx}`}
+                  className="text-2xs font-semibold px-2 py-0.5 rounded-full"
+                  style={attributeStyle(attribute)}
+                >
+                  {attributeLabel(attribute)}
+                </span>
+              ))}
+            </div>
+          )}
 
           {/* Meta row */}
-          <div className="flex items-center gap-3 mb-3 text-xs" style={{ color: 'var(--color-muted)' }}>
-            {item.preparationTime && (
-              <span className="flex items-center gap-1">
-                <ClockIcon size={13} />
-                <span>{t('itemCard.minutes', { count: item.preparationTime })}</span>
-              </span>
-            )}
-            {item.isSpicy && (
-              <span title={t('itemCard.spicyBadge')} className="flex items-center" style={{ color: 'var(--danger)' }}>
-                <FlameIcon size={14} />
-              </span>
-            )}
-            {item.allergens?.length > 0 && (
-              <span title={t('itemCard.containsTitle', { list: item.allergens.join(', ') })} className="cursor-help">
-                {t('itemCard.allergens')}
-              </span>
-            )}
-          </div>
+          {hasMeta && (
+            <div
+              className="flex items-center gap-2.5 mt-1.5 text-2xs"
+              style={{ color: 'var(--color-muted)' }}
+            >
+              {item.preparationTime && (
+                <span className="flex items-center gap-1 flex-shrink-0">
+                  <ClockIcon size={12} />
+                  <span>{t('itemCard.minutes', { count: item.preparationTime })}</span>
+                </span>
+              )}
+              {item.isSpicy && (
+                <span
+                  title={t('itemCard.spicyBadge')}
+                  className="flex items-center flex-shrink-0"
+                  style={{ color: 'var(--danger)' }}
+                >
+                  <FlameIcon size={13} />
+                </span>
+              )}
+              {item.allergens && item.allergens.length > 0 && (
+                <span
+                  title={t('itemCard.containsTitle', { list: item.allergens.join(', ') })}
+                  className="cursor-help truncate"
+                >
+                  {t('itemCard.allergens')}
+                </span>
+              )}
+            </div>
+          )}
 
-          {/* Price + CTA row */}
-          <div className="flex items-center justify-between">
+          {/* Price + action — pinned to the bottom of the row */}
+          <div className="relative flex items-center justify-between gap-2 mt-auto pt-2">
             <span
-              className="font-display text-lg font-bold"
+              className="font-display text-sm sm:text-base font-bold truncate"
               style={{ color: 'var(--color-primary)' }}
             >
               {formatPrice(item.price)}
             </span>
 
-            {item.isAvailable && (
-              quantity > 0 ? (
-                /* Quantity controls */
+            {/* Visible add confirmation, keyed so repeat taps re-animate */}
+            {addedAt > 0 && (
+              <span
+                key={addedAt}
+                aria-hidden="true"
+                className="pointer-events-none absolute -top-1 end-0 font-display text-xs font-bold animate-fade-up"
+                style={{ color: 'var(--success)' }}
+              >
+                +1
+              </span>
+            )}
+
+            {/* Screen-reader announcement for the same action */}
+            <span className="sr-only" role="status" aria-live="polite">
+              {addedAt > 0 ? t('itemCard.addedToCart', { name: item.name }) : ''}
+            </span>
+
+            {item.isAvailable &&
+              (quantity > 0 ? (
+                /* Quantity stepper */
                 <div
-                  className="flex items-center gap-2 rounded-full px-1 py-1"
-                  style={{ background: 'var(--color-cream-dark)', border: '1.5px solid var(--color-divider)' }}
+                  className="flex items-center rounded-full flex-shrink-0 animate-pop-in"
+                  style={{
+                    background: 'var(--color-cream-dark)',
+                    border: '1.5px solid var(--color-divider)',
+                  }}
                 >
                   <button
                     onClick={handleDecrement}
                     aria-label={t('itemCard.removeOne')}
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold transition-transform active:scale-90 focus-gold"
+                    className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold transition-transform active:scale-90 focus-gold"
                     style={{ background: 'var(--color-primary)' }}
                   >
                     −
@@ -170,40 +268,34 @@ function MenuItemCard({ item, index = 0 }) {
                   <button
                     onClick={handleIncrement}
                     aria-label={t('itemCard.addOneMore')}
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold transition-transform active:scale-90 focus-gold"
+                    className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold transition-transform active:scale-90 focus-gold"
                     style={{ background: 'var(--color-primary)' }}
                   >
                     +
                   </button>
                 </div>
               ) : (
-                /* Add to cart button */
+                /* Add to cart — compact pill */
                 <button
                   onClick={handleAdd}
                   aria-label={t('itemCard.addToCart', { name: item.name })}
-                  className="btn-primary focus-gold text-sm px-4 py-2 flex items-center gap-1.5"
+                  className="btn-primary focus-gold rounded-full flex items-center gap-1 flex-shrink-0"
                   style={{
-                    borderRadius: '9999px',
-                    padding: '0.45rem 1rem',
-                    animation: adding ? 'heartbeat 0.6s ease-in-out' : 'none',
+                    padding: '0 0.9rem',
+                    height: '36px',
+                    fontSize: '12px',
+                    fontWeight: 600,
                   }}
                 >
-                  {adding ? (
-                    <span className="animate-bounce-in">✓</span>
-                  ) : (
-                    <>
-                      <span style={{ fontSize: '16px' }}>+</span>
-                      <span>{t('common.add')}</span>
-                    </>
-                  )}
+                  <span style={{ fontSize: '15px', lineHeight: 1 }}>+</span>
+                  <span>{t('common.add')}</span>
                 </button>
-              )
-            )}
+              ))}
           </div>
         </div>
       </div>
 
-      {/* ── Detail Modal ─────────────────────────────────────── */}
+      {/* ── Detail Modal ─────────────────────────────────── */}
       {showDetail && (
         <div
           className="modal-overlay"
@@ -239,6 +331,16 @@ function MenuItemCard({ item, index = 0 }) {
                 {item.isSpicy && (
                   <span className="badge badge-spicy">{t('itemCard.spicyBadge')}</span>
                 )}
+                {Array.isArray(item.attributes) &&
+                  item.attributes.map((attribute, aIdx) => (
+                    <span
+                      key={attribute._id || `${attributeLabel(attribute)}-${aIdx}`}
+                      className="text-2xs font-semibold px-2 py-1 rounded-full"
+                      style={attributeStyle(attribute)}
+                    >
+                      {attributeLabel(attribute)}
+                    </span>
+                  ))}
               </div>
 
               <h2 className="font-display text-2xl mb-2" style={{ color: 'var(--color-espresso)' }}>
@@ -254,7 +356,7 @@ function MenuItemCard({ item, index = 0 }) {
                 {item.preparationTime && (
                   <span>{t('itemCard.minPrep', { count: item.preparationTime })}</span>
                 )}
-                {item.allergens?.length > 0 && (
+                {item.allergens && item.allergens.length > 0 && (
                   <span>{t('itemCard.contains', { list: item.allergens.join(', ') })}</span>
                 )}
               </div>
@@ -287,9 +389,10 @@ function MenuItemCard({ item, index = 0 }) {
                   ) : (
                     <button
                       onClick={() => { handleAdd(); setShowDetail(false); }}
-                      className="btn-primary"
+                      className="btn-primary rounded-full"
+                      style={{ height: '38px', padding: '0 1.1rem', fontSize: '13px', fontWeight: 600 }}
                     >
-                      {t('itemCard.addToOrder')}
+                      + {t('itemCard.addToOrder')}
                     </button>
                   )
                 ) : (

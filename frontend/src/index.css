@@ -16,10 +16,10 @@
 ═══════════════════════════════════════════════════════════════════ */
 :root {
   /* ── Brand palette ─────────────────────────────────────────── */
-  --primary: #6b855e; /* sage green — CTA, active states */
-  --primary-hover: #5b6f4f; /* darker sage on hover */
-  --primary-dark: #40513a; /* pressed / dark gradient end */
-  --primary-pale: #e9eee5; /* light sage tint for backgrounds */
+  --primary: #87bac6; /* sage green — CTA, active states */
+  --primary-hover: #2f606f; /* darker sage on hover */
+  --primary-dark: #244a57; /* pressed / dark gradient end */
+  --primary-pale: #cdd6c9; /* light sage tint for backgrounds */
 
   --gold: #a67c52; /* warm natural wood — accents, borders, icons */
   --gold-light: #d6b895; /* soft sand-beige highlights */
@@ -34,7 +34,7 @@
 
   --espresso: #2f2a24; /* primary text — dark charcoal brown */
   --charcoal: #6b645b; /* body text */
-  --muted: #8f8982; /* secondary text, placeholders */
+  --muted: #ff8800; /* secondary text, placeholders */
   --divider: #d6c9b8; /* borders, lines */
   --white: #ffffff;
 
@@ -1540,7 +1540,6 @@ textarea.input {
     color 0.22s ease,
     border-color 0.22s ease;
   position: relative;
-  overflow: hidden;
 }
 .sidebar-link:hover {
   background: var(--sidebar-hover-bg);

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useTranslation } from "react-i18next";
-
+import logo96 from "../../Assets/images/72 - 72 logo.png";
 /* ── Exact colors from the design image ───────────────────────── */
 const C = {
   pageBg: "#dde7dc" /* warm pinkish-cream page background  */,
@@ -35,7 +35,10 @@ function LoginPage() {
     if (!authLoading && isAuthenticated) {
       /* Super admins land on the platform dashboard; restaurant
          admins keep their existing flow. */
-      navigate(user?.role === "super_admin" ? "/super-admin" : "/admin/dashboard", { replace: true });
+      navigate(
+        user?.role === "super_admin" ? "/super-admin" : "/admin/dashboard",
+        { replace: true },
+      );
     }
   }, [authLoading, isAuthenticated, user, navigate]);
 
@@ -99,24 +102,14 @@ function LoginPage() {
               boxShadow: "0 8px 28px rgba(36, 74, 87,0.35)",
               animation: "bounceIn 0.6s ease both",
             }}>
-            {/* SVG fork and spoon crossed — exactly as in design */}
-            <svg width="38" height="38" viewBox="0 0 38 38" fill="none">
-              {/* Fork */}
-              <path
-                d="M11 4 L11 12 M9 4 L9 10 M13 4 L13 10 M11 12 L11 28"
-                stroke="white"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-              />
-              {/* Spoon */}
-              <path
-                d="M26 4 C26 4 29 7 29 10 C29 13 27 14.5 26 15 L26 28"
-                stroke="white"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            {/* logo file  */}
+            <img
+              style={{
+                width: "60%",
+              }}
+              src={logo96}
+              alt="Tfnn logo"
+            />
           </div>
 
           {/* Restaurant name */}

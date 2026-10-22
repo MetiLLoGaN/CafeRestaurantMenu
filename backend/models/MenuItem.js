@@ -46,6 +46,13 @@ const menuItemSchema = new mongoose.Schema({
   allergens: [{
     type: String
   }],
+  /* Admin-defined attributes/badges assigned to this item (see
+     models/ProductAttribute.js). Refs are validated against the owner
+     on create/update and cleaned up when an attribute is deleted. */
+  attributes: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'ProductAttribute'
+  }],
   createdAt: {
     type: Date,
     default: Date.now
