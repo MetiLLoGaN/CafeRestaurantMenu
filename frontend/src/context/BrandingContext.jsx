@@ -1,4 +1,11 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+} from 'react';
 import api from '../api/axios';
 import { useAuth } from './AuthContext';
 import {
@@ -17,6 +24,13 @@ import {
      preview / public menu) without touching persisted state.
    - restoreBranding() snaps back to the saved theme (or the app
      defaults when logged out) — used when leaving a preview surface.
+
+   restoreBranding() reads the session/branding through refs so a
+   caller that captured it early (e.g. the customer menu's unmount
+   cleanup, which runs when navigating to the admin panel) always
+   acts on the CURRENT state — a stale closure there used to clear
+   the theme right before entering an already-authenticated admin
+   panel, leaving the default palette on screen.
 ══════════════════════════════════════════════════════════════════ */
 
 const BrandingContext = createContext(null);
@@ -36,6 +50,19 @@ export const BrandingProvider = ({ children }) => {
   const { isAuthenticated } = useAuth();
   const [branding, setBranding] = useState(DEFAULT_BRANDING);
   const [loading, setLoading] = useState(true);
+
+  /* Latest committed values — restoreBranding() reads these instead of
+     closure state, so it can stay referentially stable AND never act
+     on an outdated session/branding (same pattern as
+     ThemeSettingsPage's unmount cleanup). */
+  const brandingRef = useRef(branding);
+  const authRef = useRef(isAuthenticated);
+  useEffect(() => {
+    brandingRef.current = branding;
+  }, [branding]);
+  useEffect(() => {
+    authRef.current = isAuthenticated;
+  }, [isAuthenticated]);
 
   /* Load + apply the saved branding whenever a session is active */
   useEffect(() => {
@@ -127,14 +154,21 @@ export const BrandingProvider = ({ children }) => {
   /* Re-apply the saved theme. When no admin session is active there is
      no saved theme to restore, so the overrides are removed entirely —
      this keeps a previewed restaurant theme from leaking onto the login
-     / inquiry pages after leaving the public menu. */
+     / inquiry pages after leaving the public menu.
+
+     Reads authRef/brandingRef (never closure state): callers such as
+     MenuPage capture this in an unmount cleanup on first render, when
+     the session may still be false / branding still the default —
+     clearing the theme there left the admin panel on the default
+     palette, because BrandingContext does not re-fetch once the
+     session flag stops changing. */
   const restoreBranding = useCallback(() => {
-    if (isAuthenticated) {
-      applyTheme(branding || DEFAULT_BRANDING);
+    if (authRef.current) {
+      applyTheme(brandingRef.current || DEFAULT_BRANDING);
     } else {
       clearTheme();
     }
-  }, [isAuthenticated, branding]);
+  }, []);
 
   const value = {
     branding,

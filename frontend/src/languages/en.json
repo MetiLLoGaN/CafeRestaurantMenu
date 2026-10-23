@@ -297,7 +297,12 @@
     "title": "Categories",
     "addCategory": "Add Category",
     "editCategory": "Edit Category",
-    "deleteConfirm": "Delete this category?"
+    "deleteConfirm": "Delete this category?",
+    "empty": "No categories yet — add your first category.",
+    "loadFailed": "Could not load categories.",
+    "saveFailed": "Could not save the category.",
+    "namePlaceholder": "e.g. Hot Drinks",
+    "descriptionPlaceholder": "Optional description shown under the name"
   },
   "attributes": {
     "title": "Product Attributes",
@@ -346,7 +351,10 @@
     "imageInvalid": "Please select a JPEG, PNG, WebP or GIF image up to 5 MB.",
     "imageWillBeRemoved": "The current image will be removed when you save.",
     "saveFailed": "Failed to save the menu item. Please try again.",
-    "deleteConfirm": "Delete this item?"
+    "deleteConfirm": "Delete this item?",
+    "categoriesLoadFailed": "Could not load categories.",
+    "noCategories": "No categories yet — create a category first.",
+    "createCategory": "Create a category"
   },
   "tables": {
     "title": "Tables & QR Codes",
@@ -468,6 +476,7 @@
       "title": "Create Account",
       "subtitle": "Create a new business admin or super admin account.",
       "initialPassword": "Initial Password",
+      "newPassword": "New Password",
       "submit": "Create Account",
       "creating": "Creating…",
       "errors": {

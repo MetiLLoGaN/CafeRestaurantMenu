@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useBranding } from "../context/BrandingContext";
 import { useTranslation } from "react-i18next";
@@ -8,8 +8,10 @@ import resolveImageUrl from "../utils/resolveImageUrl";
 const navItems = [
   { path: "/admin/dashboard", labelKey: "sidebar.dashboard", icon: "📊" },
   { path: "/admin/menu", labelKey: "sidebar.menuItems", icon: "🍽️" },
-  { path: "/admin/categories", labelKey: "sidebar.categories", icon: "📂" },
-  { path: "/admin/attributes", labelKey: "sidebar.attributes", icon: "🏷️" },
+  { path: "/admin/categories", labelKey: "sidebar.categories", icon: "📂",
+    /* Attributes are managed inside the Categories page (tab), but the
+       legacy /admin/attributes deep link must still light this entry up */
+    match: ["/admin/attributes"] },
   { path: "/admin/orders", labelKey: "sidebar.liveOrders", icon: "🛒" },
   { path: "/admin/tables", labelKey: "sidebar.tablesQr", icon: "🪑" },
   { path: "/admin/theme", labelKey: "sidebar.theme", icon: "🎨" },
@@ -20,6 +22,7 @@ function Sidebar() {
   const { logout, user } = useAuth();
   const { branding } = useBranding();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { t, i18n } = useTranslation();
   const [logoFailed, setLogoFailed] = useState(false);
 
@@ -105,9 +108,10 @@ function Sidebar() {
           <NavLink
             key={item.path}
             to={item.path}
-            className={({ isActive }) =>
-              `sidebar-link animate-fade-left stagger-${i + 1} ${isActive ? "active" : ""}`
-            }
+            className={({ isActive }) => {
+              const active = isActive || (item.match || []).includes(pathname);
+              return `sidebar-link animate-fade-left stagger-${i + 1} ${active ? "active" : ""}`;
+            }}
             aria-label={t(item.labelKey)}>
             <span style={{ fontSize: "18px", flexShrink: 0 }}>{item.icon}</span>
             <span>{t(item.labelKey)}</span>

@@ -17,9 +17,15 @@ function MenuManagementPage() {
     ? 'fa'
     : 'en';
   const [menuItems, setMenuItems] = useState([]);
-  const [categories, setCategories] = useState([]);
   const [attributes, setAttributes] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  /* Categories are fetched independently of menu items/attributes so a
+     failure in any other request can never leave the Add/Edit form
+     without its category list. Own loading / error state for the select. */
+  const [categories, setCategories] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [categoriesError, setCategoriesError] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [formData, setFormData] = useState({
@@ -49,25 +55,52 @@ function MenuManagementPage() {
   const [removeImage, setRemoveImage] = useState(false);
   const [saveError, setSaveError] = useState('');
 
-  const fetchData = async () => {
+  /* Dedicated fetch for the category selector — its own loading / error
+     handling and a safe fallback if the response shape ever changes. */
+  const fetchCategories = async () => {
+    setCategoriesLoading(true);
+    setCategoriesError('');
     try {
-      const [menuRes, catRes, attrRes] = await Promise.all([
-        api.get('/menu/items'),
-        api.get('/menu/categories'),
-        api.get('/attributes')
-      ]);
-      setMenuItems(menuRes.data.menuItems);
-      setCategories(catRes.data.categories);
-      setAttributes(attrRes.data.attributes || []);
+      const { data } = await api.get('/menu/categories');
+      setCategories(Array.isArray(data.categories) ? data.categories : []);
     } catch (error) {
-      console.error('Failed to fetch data:', error);
+      console.error('Failed to fetch categories:', error);
+      setCategories([]);
+      setCategoriesError(t('menuManagement.categoriesLoadFailed'));
     } finally {
-      setLoading(false);
+      setCategoriesLoading(false);
     }
+  };
+
+  /* allSettled instead of all: one rejected request no longer discards
+     the successful responses of the others (previously a single failed
+     call silently left the category selector empty). */
+  const fetchData = async () => {
+    const [menuRes, attrRes] = await Promise.allSettled([
+      api.get('/menu/items'),
+      api.get('/attributes')
+    ]);
+    if (menuRes.status === 'fulfilled') {
+      setMenuItems(Array.isArray(menuRes.value.data.menuItems)
+        ? menuRes.value.data.menuItems
+        : []);
+    } else {
+      console.error('Failed to fetch menu items:', menuRes.reason);
+    }
+    if (attrRes.status === 'fulfilled') {
+      setAttributes(Array.isArray(attrRes.value.data.attributes)
+        ? attrRes.value.data.attributes
+        : []);
+    } else {
+      console.error('Failed to fetch attributes:', attrRes.reason);
+    }
+    setLoading(false);
   };
 
   useEffect(() => {
     fetchData();
+    fetchCategories();
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, []);
 
   const handleSubmit = async (e) => {
@@ -154,12 +187,14 @@ function MenuManagementPage() {
     setSaveError('');
     setQuickCreate(false);
     setQuickError('');
+    fetchCategories(); /* newly added categories become available */
     setEditingItem(item);
     setFormData({
       name: item.name,
       description: item.description,
       price: item.price,
-      category: item.category._id,
+      /* the linked category may have been deleted — keep the form usable */
+      category: item.category?._id || '',
       isPopular: item.isPopular,
       preparationTime: item.preparationTime || '',
       attributes: (item.attributes || [])
@@ -178,8 +213,13 @@ function MenuManagementPage() {
     }));
   };
 
-  const handleQuickCreate = async (e) => {
-    e.preventDefault();
+  /* NOTE: the quick-create panel deliberately does NOT use a nested
+     <form>. HTML parsers drop <form> inside <form>, so its onSubmit
+     never bound and the "Create & assign" button fell through to the
+     OUTER product form — saving the item and closing the whole modal.
+     The panel uses type="button" + explicit handlers instead. */
+  const handleQuickCreate = async () => {
+    if (quickSaving) return;
     setQuickError('');
 
     const payload = {
@@ -195,10 +235,16 @@ function MenuManagementPage() {
     try {
       const { data } = await api.post('/attributes', payload);
       const created = data.attribute;
-      setAttributes((prev) => [created, ...prev]);
+      /* Stay inside the Add/Edit form: only extend the lists, never reset
+         the product fields, and never assign the same id twice. */
+      setAttributes((prev) =>
+        prev.some((a) => a._id === created._id) ? prev : [created, ...prev]
+      );
       setFormData((prev) => ({
         ...prev,
-        attributes: [...prev.attributes, created._id]
+        attributes: prev.attributes.includes(created._id)
+          ? prev.attributes
+          : [...prev.attributes, created._id]
       }));
       setQuickForm({ fa: '', en: '', color: '' });
       setQuickCreate(false);
@@ -238,48 +284,63 @@ function MenuManagementPage() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">{t('menuManagement.title')}</h1>
         <button
-          onClick={() => { resetForm(); setShowModal(true); }}
+          onClick={() => { resetForm(); fetchCategories(); setShowModal(true); }}
           className="bg-primary text-white px-4 py-2 rounded-lg font-medium"
         >
           {t('menuManagement.addItem')}
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+      {/* The row must FIT the available width at every breakpoint
+          (no sideways scrolling to reach price/actions on phones):
+          - min-w removed — it forced the table wider than the screen.
+          - Lower-priority columns drop out below lg/xl; Item, Price and
+            Actions are always visible, Available from sm up.
+          - px-2 lg:px-4 + text-xs lg:text-sm keep the compact widths
+            readable on phones.
+          overflow-x-auto stays purely as a safety net. */}
+      <div className="bg-white rounded-xl shadow-sm overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-4 py-3 text-start text-sm font-medium text-gray-500">{t('menuManagement.item')}</th>
-              <th className="px-4 py-3 text-start text-sm font-medium text-gray-500">{t('common.category')}</th>
-              <th className="px-4 py-3 text-start text-sm font-medium text-gray-500">{t('common.price')}</th>
-              <th className="px-4 py-3 text-start text-sm font-medium text-gray-500">{t('common.available')}</th>
-              <th className="px-4 py-3 text-start text-sm font-medium text-gray-500">{t('common.popular')}</th>
-              <th className="px-4 py-3 text-start text-sm font-medium text-gray-500">{t('attributes.assign')}</th>
-              <th className="px-4 py-3 text-start text-sm font-medium text-gray-500">{t('common.actions')}</th>
+              <th className="px-2 lg:px-4 py-3 text-start text-xs lg:text-sm font-medium text-gray-500 whitespace-nowrap">{t('menuManagement.item')}</th>
+              <th className="hidden lg:table-cell px-2 lg:px-4 py-3 text-start text-xs lg:text-sm font-medium text-gray-500 whitespace-nowrap">{t('common.category')}</th>
+              <th className="px-2 lg:px-4 py-3 text-start text-xs lg:text-sm font-medium text-gray-500 whitespace-nowrap">{t('common.price')}</th>
+              <th className="hidden sm:table-cell px-2 lg:px-4 py-3 text-start text-xs lg:text-sm font-medium text-gray-500 whitespace-nowrap">{t('common.available')}</th>
+              <th className="hidden xl:table-cell px-2 lg:px-4 py-3 text-start text-xs lg:text-sm font-medium text-gray-500 whitespace-nowrap">{t('common.popular')}</th>
+              <th className="hidden xl:table-cell px-2 lg:px-4 py-3 text-start text-xs lg:text-sm font-medium text-gray-500 whitespace-nowrap">{t('attributes.assign')}</th>
+              <th className="px-2 lg:px-4 py-3 text-start text-xs lg:text-sm font-medium text-gray-500 whitespace-nowrap">{t('common.actions')}</th>
             </tr>
           </thead>
           <tbody className="divide-y">
             {menuItems.map(item => (
               <tr key={item._id}>
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-3">
+                <td className="px-2 lg:px-4 py-3 max-w-[150px] sm:max-w-[300px]">
+                  <div className="flex items-center gap-2 xl:gap-3 min-w-0">
                     {item.image && (
                       <img
                         src={resolveImageUrl(item.image)}
                         alt={item.name}
-                        className="w-12 h-12 rounded object-cover"
+                        className="w-10 xl:w-12 h-10 xl:h-12 rounded object-cover flex-shrink-0"
                         onError={(e) => { e.currentTarget.style.display = 'none'; }}
                       />
                     )}
-                    <div>
-                      <p className="font-medium">{item.name}</p>
-                      <p className="text-sm text-gray-500">{item.description}</p>
+                    {/* min-w-0 + clamp/truncate: long names and descriptions
+                        shrink gracefully instead of breaking the row */}
+                    <div className="min-w-0">
+                      <p className="font-medium truncate" title={item.name}>{item.name}</p>
+                      <p className="text-xs xl:text-sm text-gray-500 clamp-2" title={item.description}>{item.description}</p>
                     </div>
                   </div>
                 </td>
-                <td className="px-4 py-3 text-gray-600">{item.category?.name}</td>
-                <td className="px-4 py-3 font-medium">{formatPrice(item.price)}</td>
-                <td className="px-4 py-3">
+                <td
+                  className="hidden lg:table-cell px-2 lg:px-4 py-3 text-gray-600 max-w-[140px] truncate"
+                  title={item.category?.name || ''}
+                >
+                  {item.category?.name || '—'}
+                </td>
+                <td className="px-2 lg:px-4 py-3 text-xs lg:text-sm font-medium whitespace-nowrap">{formatPrice(item.price)}</td>
+                <td className="hidden sm:table-cell px-2 lg:px-4 py-3">
                   <button
                     onClick={() => handleToggle(item._id)}
                     className={`w-12 h-6 rounded-full transition-colors ${item.isAvailable ? 'bg-green-500' : 'bg-gray-300'}`}
@@ -287,17 +348,18 @@ function MenuManagementPage() {
                     <div className={`w-5 h-5 bg-white rounded-full transition-transform ${item.isAvailable ? 'translate-x-6 rtl:-translate-x-6' : 'translate-x-0.5 rtl:-translate-x-0.5'}`} />
                   </button>
                 </td>
-                <td className="px-4 py-3">
+                <td className="hidden xl:table-cell px-2 lg:px-4 py-3">
                   {item.isPopular && (
                     <span className="bg-primary text-white text-xs px-2 py-1 rounded-full">{t('common.popular')}</span>
                   )}
                 </td>
-                <td className="px-4 py-3">
-                  <div className="flex flex-wrap gap-1">
+                <td className="hidden xl:table-cell px-2 lg:px-4 py-3">
+                  <div className="flex flex-wrap gap-1 max-w-[220px]">
                     {(item.attributes || []).map((attribute) => (
                       <span
                         key={attribute._id}
-                        className="text-xs px-2 py-0.5 rounded-full text-white"
+                        title={attributeLabel(attribute)}
+                        className="text-xs px-2 py-0.5 rounded-full text-white whitespace-nowrap"
                         style={{ background: attribute.color || 'var(--color-primary)' }}
                       >
                         {attributeLabel(attribute) || '—'}
@@ -305,7 +367,7 @@ function MenuManagementPage() {
                     ))}
                   </div>
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-2 lg:px-4 py-3 whitespace-nowrap text-xs lg:text-sm">
                   <button onClick={() => openEdit(item)} className="text-primary me-2">{t('common.edit')}</button>
                   <button onClick={() => handleDelete(item._id)} className="text-red-500">{t('common.delete')}</button>
                 </td>
@@ -355,17 +417,46 @@ function MenuManagementPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">{t('common.category')}</label>
-                <select
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  required
-                  className="w-full border rounded-lg p-2"
-                >
-                  <option value="">{t('menuManagement.selectCategory')}</option>
-                  {categories.map(cat => (
-                    <option key={cat._id} value={cat._id}>{cat.name}</option>
-                  ))}
-                </select>
+
+                {categoriesLoading ? (
+                  /* Loading state */
+                  <div className="flex items-center gap-2 text-sm text-gray-500 py-2" role="status">
+                    <span className="spinner spinner-sm" aria-hidden="true" />
+                    <span>{t('common.loading')}</span>
+                  </div>
+                ) : categoriesError ? (
+                  /* Error state — retry without reopening the form */
+                  <div className="text-sm py-1" role="alert">
+                    <p className="text-red-500 mb-1">{categoriesError}</p>
+                    <button
+                      type="button"
+                      onClick={fetchCategories}
+                      className="text-xs text-primary underline"
+                    >
+                      {t('common.tryAgain')}
+                    </button>
+                  </div>
+                ) : categories.length === 0 ? (
+                  /* Empty state — point the admin at the Categories page */
+                  <p className="text-xs text-gray-500 py-1">
+                    {t('menuManagement.noCategories')}{' '}
+                    <Link to="/admin/categories" className="text-primary underline">
+                      {t('menuManagement.createCategory')}
+                    </Link>
+                  </p>
+                ) : (
+                  <select
+                    value={formData.category}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    required
+                    className="w-full border rounded-lg p-2"
+                  >
+                    <option value="">{t('menuManagement.selectCategory')}</option>
+                    {categories.map(cat => (
+                      <option key={cat._id} value={cat._id}>{cat.name}</option>
+                    ))}
+                  </select>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">{t('menuManagement.prepTime')}</label>
@@ -430,7 +521,18 @@ function MenuManagementPage() {
                 </Link>
 
                 {quickCreate && (
-                  <form onSubmit={handleQuickCreate} className="border rounded-lg p-3 mt-2 space-y-2">
+                  <div
+                    className="border rounded-lg p-3 mt-2 space-y-2"
+                    /* Enter inside the panel creates the attribute instead
+                       of submitting (and closing) the product form */
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleQuickCreate();
+                      }
+                    }}
+                  >
                     <p className="text-xs text-gray-500">{t('attributes.quickAddHint')}</p>
                     <input
                       type="text"
@@ -467,8 +569,15 @@ function MenuManagementPage() {
                     )}
                     <div className="flex gap-2">
                       <button
-                        type="submit"
+                        type="button"
                         disabled={quickSaving}
+                        onClick={(e) => {
+                          /* never let the click reach the outer product
+                             form's submit handler / parent handlers */
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleQuickCreate();
+                        }}
                         className="flex-1 bg-primary text-white text-sm py-1.5 rounded-lg"
                       >
                         {quickSaving ? t('common.loading') : t('attributes.createAndAssign')}
@@ -481,7 +590,7 @@ function MenuManagementPage() {
                         {t('common.cancel')}
                       </button>
                     </div>
-                  </form>
+                  </div>
                 )}
               </div>
               <div>

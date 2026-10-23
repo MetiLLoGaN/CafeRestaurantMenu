@@ -8,8 +8,9 @@ import { useTranslation } from 'react-i18next';
 /* ══════════════════════════════════════════════════════════════════
    CATEGORIES
    One page, two sections (tabs): product Categories and Product
-   Attributes. `initialTab` lets deep links (e.g. the sidebar's
-   «Product Attributes» entry → /admin/attributes) open the right tab.
+   Attributes. Both are reached from the sidebar's Categories entry;
+   `initialTab` lets deep links (e.g. the legacy /admin/attributes
+   URL) open the right tab.
 ══════════════════════════════════════════════════════════════════ */
 function CategoryPage({ initialTab = 'categories' }) {
   const { t } = useTranslation();
@@ -17,16 +18,22 @@ function CategoryPage({ initialTab = 'categories' }) {
 
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
   const [formData, setFormData] = useState({ name: '', description: '' });
+  const [saveError, setSaveError] = useState('');
 
   const fetchCategories = async () => {
+    setLoadError('');
     try {
       const response = await api.get('/menu/categories');
-      setCategories(response.data.categories);
+      setCategories(Array.isArray(response.data.categories)
+        ? response.data.categories
+        : []);
     } catch (error) {
       console.error('Failed to fetch categories:', error);
+      setLoadError(t('categories.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -38,6 +45,7 @@ function CategoryPage({ initialTab = 'categories' }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSaveError('');
     try {
       if (editingCategory) {
         await api.put(`/menu/categories/${editingCategory._id}`, formData);
@@ -49,6 +57,7 @@ function CategoryPage({ initialTab = 'categories' }) {
       resetForm();
     } catch (error) {
       console.error('Failed to save category:', error);
+      setSaveError(error.response?.data?.message || t('categories.saveFailed'));
     }
   };
 
@@ -64,6 +73,7 @@ function CategoryPage({ initialTab = 'categories' }) {
 
   const openEdit = (category) => {
     setEditingCategory(category);
+    setSaveError('');
     setFormData({ name: category.name, description: category.description || '' });
     setShowModal(true);
   };
@@ -71,6 +81,7 @@ function CategoryPage({ initialTab = 'categories' }) {
   const resetForm = () => {
     setEditingCategory(null);
     setFormData({ name: '', description: '' });
+    setSaveError('');
   };
 
   if (loading) {
@@ -123,7 +134,37 @@ function CategoryPage({ initialTab = 'categories' }) {
       {activeTab === 'attributes' ? (
         <AttributeManager />
       ) : (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <>
+        {/* Load error — keep the page usable with a retry */}
+        {loadError && (
+          <div
+            role="alert"
+            className="bg-white p-6 rounded-xl shadow-sm text-center mb-4"
+          >
+            <p className="text-sm text-red-500 mb-3">{loadError}</p>
+            <button
+              onClick={fetchCategories}
+              className="bg-primary text-white px-4 py-2 rounded-lg font-medium"
+            >
+              {t('common.tryAgain')}
+            </button>
+          </div>
+        )}
+
+        {/* Empty state */}
+        {!loadError && categories.length === 0 && (
+          <div className="bg-white p-8 rounded-xl shadow-sm text-center text-gray-500">
+            <p className="mb-4">{t('categories.empty')}</p>
+            <button
+              onClick={() => { resetForm(); setShowModal(true); }}
+              className="bg-primary text-white px-4 py-2 rounded-lg font-medium"
+            >
+              {t('categories.addCategory')}
+            </button>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {categories.map(category => (
           <div key={category._id} className="bg-white p-4 rounded-xl shadow-sm">
             <div className="flex justify-between items-start mb-2">
@@ -139,7 +180,8 @@ function CategoryPage({ initialTab = 'categories' }) {
             </div>
           </div>
         ))}
-      </div>
+        </div>
+      </>
       )}
 
       {showModal && (
@@ -154,6 +196,8 @@ function CategoryPage({ initialTab = 'categories' }) {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
+                  maxLength={60}
+                  placeholder={t('categories.namePlaceholder')}
                   className="w-full border rounded-lg p-2"
                 />
               </div>
@@ -162,9 +206,14 @@ function CategoryPage({ initialTab = 'categories' }) {
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  maxLength={300}
+                  placeholder={t('categories.descriptionPlaceholder')}
                   className="w-full border rounded-lg p-2"
                 />
               </div>
+              {saveError && (
+                <p className="text-sm text-red-500" role="alert">{saveError}</p>
+              )}
               <div className="flex gap-2">
                 <button type="submit" className="flex-1 bg-primary text-white py-2 rounded-lg">
                   {t('common.save')}
