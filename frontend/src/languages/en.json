@@ -264,6 +264,7 @@
     "confirmOrder": "Confirm Order",
     "markReady": "Mark Ready",
     "processing": "Processing...",
+    "updateFailed": "Could not update the order. Please try again.",
     "readyForPickup": "Ready for Pickup",
     "dismiss": "Dismiss",
     "nav": {

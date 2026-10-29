@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Order = require('../models/Order');
 const MenuItem = require('../models/MenuItem');
 const Table = require('../models/Table');
@@ -70,6 +71,12 @@ const updateOrderStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
+
+    /* A malformed id never reaches Mongo — it would surface as a
+       CastError (HTTP 500). Reject it as a client error instead. */
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({ message: 'Invalid order id' });
+    }
 
     const validStatuses = ['pending', 'confirmed', 'preparing', 'ready', 'completed', 'cancelled'];
     if (!validStatuses.includes(status)) {

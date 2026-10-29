@@ -264,6 +264,7 @@
     "confirmOrder": "تأیید سفارش",
     "markReady": "آماده شد",
     "processing": "در حال پردازش…",
+    "updateFailed": "به‌روزرسانی سفارش انجام نشد. لطفاً دوباره تلاش کنید.",
     "readyForPickup": "آماده تحویل",
     "dismiss": "بستن",
     "nav": {

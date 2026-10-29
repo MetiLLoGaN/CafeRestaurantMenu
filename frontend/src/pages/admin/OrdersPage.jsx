@@ -71,6 +71,7 @@ function OrderCard({ order, onUpdate, kitchenOnline }) {
   const { t } = useTranslation();
   const formatPrice = useFormatPrice();
   const [actionLoading, setActionLoading] = useState(false);
+  const [actionError, setActionError] = useState(null);
 
   const getStatusInfo = (status) => {
     const statusMap = {
@@ -91,30 +92,30 @@ function OrderCard({ order, onUpdate, kitchenOnline }) {
     return t('common.timeAgo.minutes', { count: diffMins });
   };
 
-  const handleConfirmOrder = async () => {
-    if (order.status !== 'pending') return;
+  /* Backend contract: PATCH /api/orders/:id/status (see orderRoutes.js) */
+  const updateStatus = async (status) => {
+    if (actionLoading) return;
     setActionLoading(true);
+    setActionError(null);
     try {
-      await api.patch(`/orders/${order._id}`, { status: 'preparing' });
+      await api.patch(`/orders/${order._id}/status`, { status });
       onUpdate();
     } catch (error) {
       console.error('Error updating order:', error);
+      setActionError(error.response?.data?.message || t('orders.updateFailed'));
     } finally {
       setActionLoading(false);
     }
   };
 
-  const handleMarkReady = async () => {
+  const handleConfirmOrder = () => {
+    if (order.status !== 'pending') return;
+    return updateStatus('preparing');
+  };
+
+  const handleMarkReady = () => {
     if (order.status !== 'preparing') return;
-    setActionLoading(true);
-    try {
-      await api.patch(`/orders/${order._id}`, { status: 'ready' });
-      onUpdate();
-    } catch (error) {
-      console.error('Error updating order:', error);
-    } finally {
-      setActionLoading(false);
-    }
+    return updateStatus('ready');
   };
 
   const statusInfo = getStatusInfo(order.status);
@@ -219,6 +220,17 @@ function OrderCard({ order, onUpdate, kitchenOnline }) {
         >
           {t('orders.readyForPickup')}
         </div>
+      )}
+
+      {/* Inline error if the status update fails (shown in both LTR and RTL) */}
+      {actionError && (
+        <p
+          className="mt-3 text-xs font-semibold text-center"
+          style={{ color: '#DC2626' }}
+          role="alert"
+        >
+          {actionError}
+        </p>
       )}
     </div>
   );
